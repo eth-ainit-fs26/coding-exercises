@@ -1168,9 +1168,9 @@ select{font-family:var(--ff);background:var(--s2);color:var(--fg);border:1px sol
       <!-- ═══ PART B: 2D ═══ -->
       <div class="g4-section-hdr"><span class="sh-num">B</span> 2D Embedding - two numbers per word</div>
       <div class="g4-axis-hints">
-        <span class="ah-left">← Countryside</span>
-        <span class="ah-mid">X: world &nbsp;·&nbsp; Y: broad → specific</span>
-        <span class="ah-right">City →</span>
+        <span class="ah-left">← South / Countryside</span>
+        <span class="ah-mid">X: position (north ↔ south) &nbsp;·&nbsp; Y: hierarchy (broad → specific)</span>
+        <span class="ah-right">North / City →</span>
       </div>
       <div class="g4-grid-area">
         <div class="g4-ylabel">Broad ↑ &nbsp; Specific ↓</div>
@@ -1513,13 +1513,13 @@ const g2 = (function(){
     {w:"maytān",  en:"pool",       cat:"city",    cls:"t-city"},
     {w:"ʿIqlēsīya",en:"church",   cat:"city",    cls:"t-city"},
     {w:"bet masḥāf",en:"museum",   cat:"city",    cls:"t-city"},
-    {w:"ʿEmäk",   en:"valley",     cat:"nature",  cls:"t-nature"},
+    {w:"nagār",    en:"town",       cat:"city",    cls:"t-shared"},
+    {w:"ʿEmäk",   en:"valley",     cat:"nature",  cls:"t-shared"},
     {w:"gāzā",    en:"mountain",   cat:"nature",  cls:"t-nature"},
     {w:"may",      en:"lake",       cat:"nature",  cls:"t-nature"},
     {w:"ṣadäq",   en:"field",      cat:"nature",  cls:"t-nature"},
+    {w:"daqqān",   en:"countryside",cat:"nature",  cls:"t-shared"},
     {w:"ʾAgär",   en:"country",    cat:"shared",  cls:"t-shared"},
-    {w:"nagār",    en:"town",       cat:"shared",  cls:"t-shared"},
-    {w:"daqqān",   en:"countryside",cat:"shared",  cls:"t-shared"},
     {w:"lay",      en:'"is"',       cat:"grammar", cls:"t-grammar"},
     {w:"qeddām",   en:"in front of",cat:"grammar", cls:"t-grammar"},
     {w:"ʾaḥar",   en:"behind",     cat:"grammar", cls:"t-grammar"},
@@ -1949,7 +1949,7 @@ const g4 = (function(){
     {w:"ʿIqlēsīya",en:"church",cls:"t-city",v:1},
     {w:"daqqān",en:"countryside",cls:"t-shared",v:-1},
     {w:"gāzā",en:"mountain",cls:"t-nature",v:-2},
-    {w:"ʿEmäk",en:"valley",cls:"t-nature",v:-3},
+    {w:"ʿEmäk",en:"valley",cls:"t-shared",v:-3},
     {w:"may",en:"lake",cls:"t-nature",v:-4},
     {w:"ṣadäq",en:"field",cls:"t-nature",v:-5},
   ];
@@ -1958,15 +1958,15 @@ const g4 = (function(){
   const XS=[-4,-3,-2,-1,0,1,2,3,4], YS=[4,3,2,1,0];
   const WORDS_2D = [
     {w:"ʾAgär",en:"country",cls:"t-shared",x:0,y:4},
-    {w:"nagār",en:"town",cls:"t-shared",x:2,y:3},
+    {w:"nagār",en:"town",cls:"t-shared",x:3,y:3},
     {w:"daqqān",en:"countryside",cls:"t-shared",x:-2,y:3},
-    {w:"maytān",en:"pool",cls:"t-city",x:2,y:0},
-    {w:"ʿIqlēsīya",en:"church",cls:"t-city",x:2,y:2},
-    {w:"bet masḥāf",en:"museum",cls:"t-city",x:2,y:1},
-    {w:"gāzā",en:"mountain",cls:"t-nature",x:-2,y:2},
+    {w:"maytān",en:"pool",cls:"t-city",x:4,y:1},
+    {w:"ʿIqlēsīya",en:"church",cls:"t-city",x:2,y:1},
+    {w:"bet masḥāf",en:"museum",cls:"t-city",x:3,y:1},
+    {w:"gāzā",en:"mountain",cls:"t-nature",x:-1,y:1},
     {w:"may",en:"lake",cls:"t-nature",x:-3,y:1},
-    {w:"ʿEmäk",en:"valley",cls:"t-nature",x:-2,y:1},
-    {w:"ṣadäq",en:"field",cls:"t-nature",x:-3,y:0},
+    {w:"ʿEmäk",en:"valley",cls:"t-shared",x:-3,y:2},
+    {w:"ṣadäq",en:"field",cls:"t-nature",x:-4,y:1},
   ];
 
   const Q1D = [
@@ -1995,31 +1995,31 @@ const g4 = (function(){
 
   const Q2D = [
     {
-      q:'Now look at the 2D grid. nagār (town) is at (2, 3) and daqqān (countryside) is at (−2, 3). What changed compared to the 1D line?',
-      opts:['Nothing - they\'re still far apart','They now share the same Y-value, showing they\'re at the same hierarchy level','They switched positions','They\'re at the same position now'],
+      q:'Now look at the 2D grid. nagār (town) is at (3, 3) and daqqān (countryside) is at (−2, 3). What changed compared to the 1D line?',
+      opts:['Nothing - they\'re still far apart','They now share the same Y-value (Y=3), showing they\'re at the same hierarchy level','They switched positions','They\'re at the same position now'],
       ans:1,
-      explain:'In 1D they were 5 apart with no shared feature. In 2D, their Y=3 tells us they\'re both mid-level containers, while their opposite X-values (±2) tell us they\'re from different worlds. Two dimensions let us encode two independent features.',
+      explain:'In 1D they were 5 apart with no shared feature. In 2D, their Y=3 tells us they\'re both mid-level containers, while their X-values (3 vs −2) tell us they\'re in different geographic regions - town in the north, countryside in the south. Two dimensions let us encode two independent features: position and hierarchy.',
       hl2d:['nagār','daqqān']
     },
     {
       q:'Where is ʾAgär (country) now? Why is this position better than +5 on the number line?',
-      opts:['It\'s at (0, 4) - centered between both worlds AND at the top as the broadest word','It\'s at (4, 4) - the top-right corner','It\'s hidden - 2D doesn\'t need it','It\'s at (0, 0) - the origin'],
+      opts:['It\'s at (0, 4) - centered on X (belongs to both worlds) AND at the top on Y (broadest container)','It\'s at (4, 4) - the top-right corner','It\'s hidden - 2D doesn\'t need it','It\'s at (0, 0) - the origin'],
       ans:0,
-      explain:'At (0, 4), ʾAgär is X=0 (centered - it belongs to both worlds) and Y=4 (top - it\'s the broadest container). In 1D, it was stuck at +5 looking like a city word. The second dimension lets us express both its neutrality and its broadness.',
+      explain:'At (0, 4), ʾAgär has X=0 (centered between north and south - it spans both worlds) and Y=4 (top - it\'s the broadest container). In 1D, it was stuck at +5 looking like the "most city" word. The second dimension (hierarchy) lets us express both its neutrality and its broadness simultaneously.',
       hl2d:['ʾAgär']
     },
     {
       q:'Which pair of words is closest on the 2D grid?',
-      opts:['ʾAgär and ṣadäq','gāzā and ʿIqlēsīya','ʿIqlēsīya (2,2) and bet masḥāf (2,1)','may and maytān'],
+      opts:['ʾAgär and ṣadäq','gāzā and ʿIqlēsīya','maytān (4, 1) and bet masḥāf (3, 1)','may and maytān'],
       ans:2,
-      explain:'ʿIqlēsīya (2,2) and bet masḥāf (2,1) are just 1 unit apart - both specific city places inside nagār. In a real LLM, words appearing in similar sentence contexts cluster exactly like this. Proximity in the embedding space = semantic similarity.',
-      hl2d:['ʿIqlēsīya','bet masḥāf']
+      explain:'maytān (4,1) and bet masḥāf (3,1) are just 1 unit apart - both specific city places inside nagār, at adjacent positions on the map. In a real LLM, words appearing in similar sentence contexts cluster exactly like this. Proximity in the embedding space = semantic similarity.',
+      hl2d:['maytān','bet masḥāf']
     },
     {
       q:'A new word "hospital" is a specific building inside the town. Where would it end up on the 2D grid?',
-      opts:['Top center near ʾAgär (0, 4)','Left side near ṣadäq (−3, 0)','Right side near the city cluster, around (2, 0-2)','At the origin (0, 0)'],
+      opts:['Top center near ʾAgär (0, 4)','Left side near ṣadäq (−4, 1)','Positive X (north/city side), Y=1 (specific place), near the city cluster around (2-4, 1)','At the origin (0, 0)'],
       ans:2,
-      explain:'A hospital is a specific city place - similar to church and museum. It would be positive X (city side), low Y (specific), landing in the right cluster near ʿIqlēsīya and bet masḥāf. This is how real LLMs work: new words with similar context patterns end up near semantically similar existing words.',
+      explain:'A hospital is a specific city place - similar to church and museum. It would have positive X (city/north side) and Y=1 (specific place, same level as all other leaf locations), landing near ʿIqlēsīya (2,1) and bet masḥāf (3,1). This is how real LLMs work: new words with similar context patterns end up near semantically similar existing words.',
       hl2d:['ʿIqlēsīya','bet masḥāf','maytān']
     },
   ];
@@ -2149,21 +2149,21 @@ const g4 = (function(){
 const g5 = (function(){
   const XS=[-4,-3,-2,-1,0,1,2,3,4], YS=[4,3,2,1,0];
   const WORDS=[
-    {w:'ʾAgär',  cls:'t-shared', x:0,  y:4},
-    {w:'nagār',  cls:'t-shared', x:2,  y:3},
-    {w:'daqqān', cls:'t-shared', x:-2, y:3},
-    {w:'maytān', cls:'t-city',   x:2,  y:0},
-    {w:'ʿIqlēsīya',cls:'t-city',x:2,  y:2},
-    {w:'bet masḥāf',cls:'t-city',x:2, y:1},
-    {w:'gāzā',   cls:'t-nature', x:-2, y:2},
-    {w:'may',    cls:'t-nature', x:-3, y:1},
-    {w:'ʿEmäk',  cls:'t-nature', x:-2, y:1},
-    {w:'ṣadäq',  cls:'t-nature', x:-3, y:0},
+    {w:'ʾAgär',       cls:'t-shared', x:0,  y:4},
+    {w:'nagār',       cls:'t-shared', x:3,  y:3},
+    {w:'daqqān',      cls:'t-shared', x:-2, y:3},
+    {w:'maytān',      cls:'t-city',   x:4,  y:1},
+    {w:'ʿIqlēsīya',  cls:'t-city',   x:2,  y:1},
+    {w:'bet masḥāf',  cls:'t-city',   x:3,  y:1},
+    {w:'gāzā',       cls:'t-nature', x:-1, y:1},
+    {w:'may',        cls:'t-nature', x:-3, y:1},
+    {w:'ʿEmäk',      cls:'t-shared', x:-3, y:2},
+    {w:'ṣadäq',      cls:'t-nature', x:-4, y:1},
   ];
 
   // Decode challenges: give vector → find word
   const CHALLENGES=[
-    {x:2,y:0},{x:-2,y:2},{x:0,y:4},{x:-3,y:1},{x:2,y:1},{x:-3,y:0}
+    {x:4,y:1},{x:-1,y:1},{x:0,y:4},{x:-3,y:1},{x:3,y:1},{x:-4,y:1}
   ];
 
   let selected=null, cellEls={}, built=false;
@@ -2313,7 +2313,7 @@ const g6 = (function(){
   const PALETTE=[
     {label:'gāzā',       canon:'gāzā',       cat:'nature'},
     {label:'may',        canon:'may',         cat:'nature'},
-    {label:'ʿEmäk',      canon:'ʿEmäk',       cat:'nature'},
+    {label:'ʿEmäk',      canon:'ʿEmäk',       cat:'shared'},
     {label:'ṣadäq',      canon:'ṣadäq',       cat:'nature'},
     {label:'maytān',     canon:'maytān',      cat:'city'},
     {label:'ʿIqlēsīya', canon:'ʿIqlēsīya',  cat:'city'},
@@ -2344,9 +2344,9 @@ const g6 = (function(){
   const VALID_SET=new Set(RAW.map(norm));
 
   const EMBEDS={
-    'ʾAgär':{x:0,y:4},'nagār':{x:2,y:3},'daqqān':{x:-2,y:3},
-    'maytān':{x:2,y:0},'ʿIqlēsīya':{x:2,y:2},'bet masḥāf':{x:2,y:1},
-    'gāzā':{x:-2,y:2},'may':{x:-3,y:1},'ʿEmäk':{x:-2,y:1},'ṣadäq':{x:-3,y:0},
+    'ʾAgär':{x:0,y:4},'nagār':{x:3,y:3},'daqqān':{x:-2,y:3},
+    'maytān':{x:4,y:1},'ʿIqlēsīya':{x:2,y:1},'bet masḥāf':{x:3,y:1},
+    'gāzā':{x:-1,y:1},'may':{x:-3,y:1},'ʿEmäk':{x:-3,y:2},'ṣadäq':{x:-4,y:1},
     'lay':{x:0,y:0},'qeddām':{x:1,y:0},'ʾaḥar':{x:-1,y:0}
   };
 
