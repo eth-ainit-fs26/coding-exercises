@@ -1513,7 +1513,7 @@ const g2 = (function(){
     {w:"maytān",  en:"pool",       cat:"city",    cls:"t-city"},
     {w:"ʿIqlēsīya",en:"church",   cat:"city",    cls:"t-city"},
     {w:"bet masḥāf",en:"museum",   cat:"city",    cls:"t-city"},
-    {w:"ʿEmäk",   en:"valley",     cat:"nature",  cls:"t-nature"},
+    {w:"ʿEmäk",   en:"valley",     cat:"shared",  cls:"t-shared"},
     {w:"gāzā",    en:"mountain",   cat:"nature",  cls:"t-nature"},
     {w:"may",      en:"lake",       cat:"nature",  cls:"t-nature"},
     {w:"ṣadäq",   en:"field",      cat:"nature",  cls:"t-nature"},
@@ -1949,7 +1949,7 @@ const g4 = (function(){
     {w:"ʿIqlēsīya",en:"church",cls:"t-city",v:1},
     {w:"daqqān",en:"countryside",cls:"t-shared",v:-1},
     {w:"gāzā",en:"mountain",cls:"t-nature",v:-2},
-    {w:"ʿEmäk",en:"valley",cls:"t-nature",v:-3},
+    {w:"ʿEmäk",en:"valley",cls:"t-shared",v:-3},
     {w:"may",en:"lake",cls:"t-nature",v:-4},
     {w:"ṣadäq",en:"field",cls:"t-nature",v:-5},
   ];
@@ -1965,7 +1965,7 @@ const g4 = (function(){
     {w:"bet masḥāf",en:"museum",cls:"t-city",x:3,y:1},
     {w:"gāzā",en:"mountain",cls:"t-nature",x:-1,y:1},
     {w:"may",en:"lake",cls:"t-nature",x:-3,y:1},
-    {w:"ʿEmäk",en:"valley",cls:"t-nature",x:-2,y:1},
+    {w:"ʿEmäk",en:"valley",cls:"t-shared",x:-3,y:2},
     {w:"ṣadäq",en:"field",cls:"t-nature",x:-4,y:1},
   ];
 
@@ -2157,7 +2157,7 @@ const g5 = (function(){
     {w:'bet masḥāf',  cls:'t-city',   x:3,  y:1},
     {w:'gāzā',       cls:'t-nature', x:-1, y:1},
     {w:'may',        cls:'t-nature', x:-3, y:1},
-    {w:'ʿEmäk',      cls:'t-nature', x:-2, y:1},
+    {w:'ʿEmäk',      cls:'t-shared', x:-3, y:2},
     {w:'ṣadäq',      cls:'t-nature', x:-4, y:1},
   ];
 
@@ -2313,7 +2313,7 @@ const g6 = (function(){
   const PALETTE=[
     {label:'gāzā',       canon:'gāzā',       cat:'nature'},
     {label:'may',        canon:'may',         cat:'nature'},
-    {label:'ʿEmäk',      canon:'ʿEmäk',       cat:'nature'},
+    {label:'ʿEmäk',      canon:'ʿEmäk',       cat:'shared'},
     {label:'ṣadäq',      canon:'ṣadäq',       cat:'nature'},
     {label:'maytān',     canon:'maytān',      cat:'city'},
     {label:'ʿIqlēsīya', canon:'ʿIqlēsīya',  cat:'city'},
@@ -2346,7 +2346,7 @@ const g6 = (function(){
   const EMBEDS={
     'ʾAgär':{x:0,y:4},'nagār':{x:3,y:3},'daqqān':{x:-2,y:3},
     'maytān':{x:4,y:1},'ʿIqlēsīya':{x:2,y:1},'bet masḥāf':{x:3,y:1},
-    'gāzā':{x:-1,y:1},'may':{x:-3,y:1},'ʿEmäk':{x:-2,y:1},'ṣadäq':{x:-4,y:1},
+    'gāzā':{x:-1,y:1},'may':{x:-3,y:1},'ʿEmäk':{x:-3,y:2},'ṣadäq':{x:-4,y:1},
     'lay':{x:0,y:0},'qeddām':{x:1,y:0},'ʾaḥar':{x:-1,y:0}
   };
 
