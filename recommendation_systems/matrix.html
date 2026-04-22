@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Interactive Template Matrix (Sorted) - FIXED</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 0;
+            text-align: center;
+            border-bottom: 1px solid #bbdefb;
+            color: #1565c0;
+            font-size: 0.95rem;
+        }
+
+        .instructions strong {
+            color: #0d47a1;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        .legend {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .legend-positive { color: #28a745; }
+        .legend-neutral { color: #6c757d; }
+        .legend-negative { color: #dc3545; }
+        .legend-unknown { color: #fd7e14; }
+
+        .matrix-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .matrix {
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .matrix th,
+        .matrix td {
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            position: relative;
+        }
+
+        .matrix th {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .matrix th:active {
+            cursor: grabbing;
+        }
+
+        .matrix th.item-header {
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            min-width: 50px;
+            max-width: 50px;
+            padding: 8px 4px;
+        }
+
+        .matrix th.person-header {
+            background: linear-gradient(45deg, #495057, #343a40);
+            min-width: 120px;
+            text-align: left;
+            padding-left: 15px;
+            cursor: default;
+        }
+
+        .matrix td.person-name {
+            background: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+            padding-left: 15px;
+            border-right: 2px solid #dee2e6;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .matrix td.person-name:active {
+            cursor: grabbing;
+        }
+
+        .matrix td {
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .matrix td:not(.person-name):hover {
+            transform: scale(1.2);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .cell-positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .cell-neutral {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .cell-negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .cell-unknown {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .item-name {
+            font-size: 0.75rem;
+            line-height: 1.1;
+            word-break: break-word;
+        }
+
+        .drag-handle {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .matrix tbody tr:nth-child(even) {
+            background-color: rgba(0,0,0,0.02);
+        }
+
+        .matrix tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            background: #ffeb3b !important;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        .drop-target {
+            background: #c8e6c9 !important;
+            border: 2px dashed #4caf50 !important;
+        }
+
+        .column-dragging {
+            background: #ffeb3b !important;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .legend {
+                gap: 15px;
+            }
+
+            .matrix th,
+            .matrix td {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+
+            .icon {
+                font-size: 1.4rem;
+            }
+
+            .item-name {
+                font-size: 0.7rem;
+            }
+
+            .instructions {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Interactive Template Matrix (Sorted) - FIXED</h1>
+            <p>Drag and drop to explore clustering patterns in the sorted data</p>
+        </div>
+
+        <div class="instructions">
+            <strong>📱 Interactive Features:</strong> Drag column headers to rearrange items • Drag row headers to rearrange people • Hover over cells for details
+        </div>
+
+        <div class="stats">
+            <strong>21 People</strong> × <strong>16 Items</strong> = <strong>336 Total Interactions</strong>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item legend-positive">
+                <span>✅ 1 = Positive</span>
+            </div>
+            <div class="legend-item legend-neutral">
+                <span>➖ 0 = Neutral</span>
+            </div>
+            <div class="legend-item legend-negative">
+                <span>❌ -1 = Negative</span>
+            </div>
+            <div class="legend-item legend-unknown">
+                <span>❓ ? = Unknown</span>
+            </div>
+        </div>
+
+        <div class="matrix-container">
+            <table class="matrix" id="matrix">
+                <thead>
+                    <tr id="headerRow">
+                        <th class="person-header">👤 Person</th>
+                    </tr>
+                </thead>
+                <tbody id="matrixBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        let matrixData = [
+['Alice', 0, 0, 1, -1, 1, 0, 1, 0, 0, 1, -1, -1, -1, 0, 0, 0],
+            ['Bob', -1, 1, 0, 0, 0, -1, 0, -1, 1, 0, 0, 0, 0, 1, 1, -1],
+            ['Charlie', -1, 1, 0, 0, 0, -1, 0, -1, 1, 0, 0, 0, 0, 1, 1, '?'],
+            ['David', 0, 0, 1, -1, 1, 0, 1, 0, 0, 1, -1, -1, -1, 0, 0, 0],
+            ['Ellen', 0, 0, -1, 1, -1, 0, '?', 0, 0, -1, 1, 1, 1, 0, 0, 0],
+            ['Fabian', 1, -1, 0, 0, 0, 1, 0, 1, -1, 0, 0, 0, 0, -1, -1, 1],
+            ['Gabriela', 0, 0, 1, -1, 1, 0, 1, 0, 0, 1, -1, '?', -1, 0, 0, 0],
+            ['Hillary', -1, 1, 0, 0, 0, -1, 0, -1, 1, 0, 0, 0, 0, 1, 1, -1],
+            ['Ian', '?', -1, 0, 0, 0, 1, 0, 1, -1, 0, 0, 0, 0, -1, -1, 1],
+            ['John', 0, 0, -1, 1, -1, 0, -1, 0, 0, -1, 1, 1, 1, 0, 0, 0],
+            ['Kim', 0, 0, -1, 1, -1, 0, -1, 0, 0, -1, 1, 1, 1, 0, 0, 0],
+            ['Michael', -1, 1, 0, 0, 0, -1, 0, -1, 1, 0, 0, 0, 0, 1, 1, -1],
+            ['Nancy', 0, 0, 1, -1, 1, 0, 1, 0, 0, '?', -1, -1, -1, 0, 0, '?'],
+            ['Omar', -1, 1, 0, 0, 0, -1, 0, -1, 1, 0, 0, 0, 0, 1, 1, -1],
+            ['Peter', 1, -1, 0, 0, 0, 1, 0, 1, -1, 0, 0, 0, 0, -1, -1, 1],
+            ['Raphael', 0, 0, 1, -1, 1, 0, 1, 0, '?', 1, -1, -1, -1, 0, 0, 0],
+            ['Susan', 0, 0, -1, 1, -1, 0, -1, 0, 0, -1, 1, 1, '?', 0, 0, 0],
+            ['Thomas', 1, -1, 0, '?', '?', 1, 0, 1, -1, 0, 0, 0, 0, -1, -1, 1],
+            ['Ulrich', 1, -1, 0, 0, 0, 1, 0, 1, -1, 0, 0, 0, 0, -1, -1, 1],
+            ['Valery', 1, -1, 0, 0, 0, 1, 0, 1, -1, 0, 0, 0, 0, -1, -1, 1],
+            ['Will', -1, 1, 0, 0, 0, -1, 0, -1, 1, 0, 0, 0, 0, 1, 1, -1]
+        ];
+
+        let itemNames = ['Air frier', 'Backpack', 'Broom', 'Car', 'Chair', 'Dishwasher', 'Frying pan', 'Gaming console', 'Hiking shoes', 'Lightbulb', 'Motorcycle', 'SUV', 'Scooter', 'Swimsuit', 'Umbrella', 'Waffle iron'];
+        
+        let draggedType = null;
+        let draggedIndex = null;
+
+        const iconMap = {
+            "Air frier": "🟧",
+            "Backpack": "🎒",
+            "Broom": "🧹",
+            "Car": "🚗",
+            "Chair": "🪑",
+            "Dishwasher": "🍽️",
+            "Frying pan": "🍳",
+            "Gaming console": "🎮",
+            "Hiking shoes": "🥾",
+            "Lightbulb": "💡",
+            "Motorcycle": "🏍️",
+            "SUV": "🚙",
+            "Scooter": "🛴",
+            "Swimsuit": "🩱",
+            "Umbrella": "☂️",
+            "Waffle iron": "🧇"
+        };
+
+        function getCellClass(value) {
+            if (value === 1) return 'cell-positive';
+            if (value === 0) return 'cell-neutral';
+            if (value === -1) return 'cell-negative';
+            if (value === '?') return 'cell-unknown';
+            return 'cell-neutral';
+        }
+
+        function getCellSymbol(value) {
+            if (value === 1) return '✅';
+            if (value === 0) return '➖';
+            if (value === -1) return '❌';
+            if (value === '?') return '❓';
+            return '➖';
+        }
+
+        function getValueDescription(value) {
+            if (value === 1) return 'Positive preference';
+            if (value === 0) return 'Neutral/No preference';
+            if (value === -1) return 'Negative preference';
+            if (value === '?') return 'Unknown preference';
+            return 'No data';
+        }
+
+        function render() {
+            // Render headers
+            const headerRow = document.getElementById('headerRow');
+            const oldHeaders = headerRow.querySelectorAll('.item-header');
+            oldHeaders.forEach(h => h.remove());
+
+            itemNames.forEach((itemName, index) => {
+                const th = document.createElement('th');
+                th.className = 'item-header';
+                th.draggable = true;
+                th.dataset.itemIndex = index;
+
+                const icon = iconMap[itemName] || "📦";
+                th.innerHTML = `
+                    <div class="drag-handle">⋮⋮</div>
+                    <span class="icon">${icon}</span>
+                    <span class="item-name">${itemName}</span>
+                `;
+
+                headerRow.appendChild(th);
+            });
+
+            // Render body
+            const tbody = document.getElementById('matrixBody');
+            tbody.innerHTML = '';
+
+            matrixData.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+
+                const personCell = document.createElement('td');
+                personCell.className = 'person-name';
+                personCell.textContent = '👤 ' + row[0];
+                personCell.draggable = true;
+                personCell.dataset.rowIndex = rowIndex;
+                tr.appendChild(personCell);
+
+                for (let i = 1; i < row.length; i++) {
+                    const cell = document.createElement('td');
+                    cell.className = getCellClass(row[i]);
+                    cell.textContent = getCellSymbol(row[i]);
+                    cell.dataset.person = row[0];
+                    cell.dataset.item = itemNames[i-1];
+                    cell.dataset.value = row[i];
+
+                    tr.appendChild(cell);
+                }
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Event Delegation - alle Events auf dem Table
+        const matrix = document.getElementById('matrix');
+
+        matrix.addEventListener('dragstart', (e) => {
+            const personCell = e.target.closest('.person-name');
+            const headerCell = e.target.closest('.item-header');
+            
+            if (personCell) {
+                draggedType = 'row';
+                draggedIndex = parseInt(personCell.dataset.rowIndex);
+                personCell.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', personCell.innerHTML);
+            } else if (headerCell) {
+                draggedType = 'column';
+                draggedIndex = parseInt(headerCell.dataset.itemIndex);
+                headerCell.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', headerCell.innerHTML);
+            }
+        });
+
+        matrix.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        matrix.addEventListener('dragenter', (e) => {
+            const personCell = e.target.closest('.person-name');
+            const headerCell = e.target.closest('.item-header');
+            
+            if (draggedType === 'row' && personCell) {
+                personCell.classList.add('drop-target');
+            } else if (draggedType === 'column' && headerCell) {
+                headerCell.classList.add('drop-target');
+            }
+        });
+
+        matrix.addEventListener('dragleave', (e) => {
+            const personCell = e.target.closest('.person-name');
+            const headerCell = e.target.closest('.item-header');
+            
+            if (personCell) {
+                personCell.classList.remove('drop-target');
+            } else if (headerCell) {
+                headerCell.classList.remove('drop-target');
+            }
+        });
+
+        matrix.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Remove all drop-target classes
+            document.querySelectorAll('.drop-target').forEach(el => {
+                el.classList.remove('drop-target');
+            });
+
+            const personCell = e.target.closest('.person-name');
+            const headerCell = e.target.closest('.item-header');
+
+            if (draggedType === 'row' && personCell) {
+                const targetIndex = parseInt(personCell.dataset.rowIndex);
+                if (targetIndex !== draggedIndex) {
+                    const draggedRow = matrixData.splice(draggedIndex, 1)[0];
+                    matrixData.splice(targetIndex, 0, draggedRow);
+                    render();
+                }
+            } else if (draggedType === 'column' && headerCell) {
+                const targetIndex = parseInt(headerCell.dataset.itemIndex);
+                if (targetIndex !== draggedIndex) {
+                    const draggedItem = itemNames.splice(draggedIndex, 1)[0];
+                    itemNames.splice(targetIndex, 0, draggedItem);
+
+                    matrixData.forEach(row => {
+                        const draggedValue = row.splice(draggedIndex + 1, 1)[0];
+                        row.splice(targetIndex + 1, 0, draggedValue);
+                    });
+                    render();
+                }
+            }
+            
+            draggedType = null;
+            draggedIndex = null;
+        });
+
+        matrix.addEventListener('dragend', (e) => {
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+            });
+            document.querySelectorAll('.drop-target').forEach(el => {
+                el.classList.remove('drop-target');
+            });
+            draggedType = null;
+            draggedIndex = null;
+        });
+
+        matrix.addEventListener('mouseenter', (e) => {
+            if (e.target.dataset.person) {
+                const tooltip = document.getElementById('tooltip');
+                const person = e.target.dataset.person;
+                const item = e.target.dataset.item;
+                const value = e.target.dataset.value;
+                const description = getValueDescription(value);
+
+                tooltip.innerHTML = `<strong>${person}</strong><br>${item}<br><em>${description}</em>`;
+                tooltip.style.opacity = '1';
+
+                const rect = e.target.getBoundingClientRect();
+                tooltip.style.left = rect.left + (rect.width / 2) + 'px';
+                tooltip.style.top = (rect.top - 60) + 'px';
+            }
+        }, true);
+
+        matrix.addEventListener('mouseleave', (e) => {
+            if (e.target.dataset.person) {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.style.opacity = '0';
+            }
+        }, true);
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
