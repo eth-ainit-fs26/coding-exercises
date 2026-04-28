@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urn Games — Interactive Probability Lab</title>
+<style>
+  /* System font stacks — no external dependencies */
+  :root {
+    --cream: #fdf6ee;
+    --warm-white: #fffaf4;
+    --sand: #f0e6d3;
+    --sand-dark: #e0cdb5;
+    --terra: #c17f4e;
+    --terra-dark: #a0623a;
+    --rust: #d4622a;
+    --ochre: #d49a3a;
+    --sage: #6a8f73;
+    --sage-light: #8fb098;
+    --ink: #2c2416;
+    --ink-light: #5a4a36;
+    --ink-muted: #8a7660;
+    --orange-ball: #f97316;
+    --white-ball: #fef9f0;
+    --success: #4a9055;
+    --error: #c0392b;
+    --border: rgba(193, 127, 78, 0.2);
+    --shadow: 0 4px 24px rgba(44,36,22,0.08);
+    --shadow-lg: 0 8px 40px rgba(44,36,22,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 10% 0%, rgba(193,127,78,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 90% 100%, rgba(106,143,115,0.06) 0%, transparent 60%);
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────── */
+  .shell { display: flex; flex-direction: column; min-height: 100vh; }  .main { flex: 1; padding: 40px 56px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+  /* ── PAGES ───────────────────────────────────────── */
+  .page { display: none; }
+  .page.visible { display: block; }
+
+  /* ── TYPOGRAPHY ──────────────────────────────────── */
+  .page-header { margin-bottom: 36px; }
+  .page-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .page-subtitle {
+    font-size: 15px;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    max-width: 640px;
+  }
+
+  h2.section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--terra-dark);
+    margin: 32px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2.section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  p.prose {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--ink-light);
+    margin-bottom: 16px;
+    max-width: 680px;
+  }
+
+  /* ── CARDS ────────────────────────────────────────── */
+  .card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .callout {
+    border-left: 3px solid var(--terra);
+    background: rgba(193,127,78,0.06);
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin: 16px 0;
+  }
+  .callout p { font-size: 14px; color: var(--ink-light); margin: 0; line-height: 1.65; }
+  .callout strong { color: var(--terra-dark); }
+
+  .info-box {
+    background: rgba(106,143,115,0.08);
+    border: 1px solid rgba(106,143,115,0.25);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .info-box p { font-size: 13.5px; color: var(--ink-light); margin: 0; line-height: 1.65; }
+
+  /* ── FORMULA DISPLAY ─────────────────────────────── */
+  .formula-box {
+    background: var(--sand);
+    border: 1px solid var(--sand-dark);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    color: var(--ink);
+  }
+  .formula-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 12px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  /* ── CODE EDITOR ─────────────────────────────────── */
+  .exercise-block {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .exercise-header {
+    background: linear-gradient(135deg, #3d2f1e, #5a3e26);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .exercise-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .exercise-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .exercise-title .dot.red { background: #ff5f57; }
+  .exercise-title .dot.yellow { background: #ffbd2e; }
+  .exercise-title .dot.green { background: #28c840; }
+
+  .exercise-body { padding: 20px; }
+  .exercise-instructions {
+    font-size: 13.5px;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+  .exercise-instructions strong { color: var(--terra-dark); }
+
+  .code-area {
+    background: #1e1612;
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 12px;
+    padding: 14px 18px;
+  }
+  .code-line {
+    display: block;
+    white-space: pre;
+    color: #9a8068;
+    min-height: 1.7em;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  .code-line.editable-line {
+    display: flex;
+    align-items: center;
+    background: rgba(193,127,78,0.07);
+    border-radius: 5px;
+    margin: 1px -4px;
+    padding: 0 4px;
+  }
+  .code-line .kw  { color: #c792ea; }
+  .code-line .fn  { color: #82aaff; }
+  .code-line .str { color: #c3e88d; }
+  .code-line .cm  { color: #546e7a; font-style: italic; }
+  .code-line .num { color: #f78c6c; }
+  .code-line .op  { color: #89ddff; }
+  .code-line .var { color: #f0d9be; }
+  .code-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f0d9be;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    resize: none;
+    padding: 0;
+    min-width: 200px;
+    caret-color: #f0c070;
+    white-space: pre;
+  }
+  .code-input::placeholder { color: rgba(193,127,78,0.4); font-style: italic; }
+
+  .code-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--terra), var(--rust));
+    color: white;
+    box-shadow: 0 3px 12px rgba(193,127,78,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(193,127,78,0.4); }
+  .btn-secondary {
+    background: var(--sand);
+    color: var(--ink-light);
+    border: 1px solid var(--sand-dark);
+  }
+  .btn-secondary:hover { background: var(--sand-dark); }
+  .btn-hint {
+    background: rgba(106,143,115,0.1);
+    color: var(--sage);
+    border: 1px solid rgba(106,143,115,0.3);
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+  .btn-hint:hover { background: rgba(106,143,115,0.2); }
+
+  .feedback {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    display: none;
+    margin-top: 10px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .feedback.show { display: block; }
+  .feedback.success {
+    background: rgba(74,144,85,0.1);
+    border: 1px solid rgba(74,144,85,0.3);
+    color: #2d6b38;
+  }
+  .feedback.error {
+    background: rgba(192,57,43,0.08);
+    border: 1px solid rgba(192,57,43,0.25);
+    color: #8b2a1f;
+  }
+  .feedback.output {
+    background: #1e1612;
+    color: #c8a878;
+    white-space: pre-wrap;
+  }
+
+  /* ── SIMULATION VISUALS ──────────────────────────── */
+  .sim-canvas-wrap {
+    background: var(--sand);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  canvas.sim-chart {
+    display: block;
+    border-radius: 8px;
+  }
+
+  .sim-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+  .sim-param {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .sim-param label { font-weight: 500; color: var(--ink-light); white-space: nowrap; }
+  .sim-param input[type=range] {
+    width: 100px;
+    accent-color: var(--terra);
+  }
+  .sim-param span { font-family: 'Courier New', Courier, monospace; font-size: 12px; min-width: 32px; }
+
+  /* ── TABLE ───────────────────────────────────────── */
+  table.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: 'Courier New', Courier, monospace;
+    margin-top: 16px;
+  }
+  table.results-table th {
+    background: var(--sand);
+    color: var(--ink-muted);
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--sand-dark);
+  }
+  table.results-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-light);
+  }
+  table.results-table tr:last-child td { border-bottom: none; }
+  table.results-table tr:hover td { background: rgba(193,127,78,0.04); }
+  .td-check { color: var(--success); font-weight: 700; }
+  .td-cross { color: var(--error); }
+
+  /* ── URN VISUALS ─────────────────────────────────── */
+  .urn-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+  .urn-card {
+    flex: 1; min-width: 120px;
+    background: var(--warm-white);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .urn-card:hover { border-color: var(--terra); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .urn-card.selected { border-color: var(--terra); background: rgba(193,127,78,0.05); }
+  .urn-card.disabled { opacity: 0.45; cursor: not-allowed; }
+  .urn-card.disabled:hover { transform: none; border-color: var(--border); }
+  .urn-label { font-family: Georgia, 'Times New Roman', serif; font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--ink); }
+  .urn-icon { margin: 0 auto 12px; }
+
+  .ball-row { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+  .ball {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.12);
+    display: inline-block;
+  }
+  .ball.white { background: var(--white-ball); border-color: var(--sand-dark); }
+  .ball.orange { background: var(--orange-ball); }
+
+  .urn-stat { font-size: 12px; color: var(--ink-muted); margin-top: 8px; }
+  .urn-ucb { font-family: 'Courier New', Courier, monospace; font-size: 12px; color: var(--terra-dark); margin-top: 4px; font-weight: 600; }
+  .best-badge {
+    position: absolute;
+    top: -8px; right: -8px;
+    background: var(--terra);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .ci-bar-wrap { height: 10px; background: var(--sand); border-radius: 20px; margin: 6px 0; overflow: hidden; position: relative; }
+  .ci-bar-fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    background: linear-gradient(90deg, rgba(193,127,78,0.4), var(--terra));
+    border-radius: 20px;
+    transition: all 0.4s;
+  }
+
+  .score-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--terra), var(--rust));
+    color: white;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: Georgia, 'Times New Roman', serif;
+    box-shadow: 0 4px 20px rgba(193,127,78,0.35);
+    margin: 12px 0;
+  }
+
+  /* ── GAME 3 ──────────────────────────────────────── */
+  .budget-bar-wrap { height: 16px; background: var(--sand); border-radius: 20px; overflow: hidden; margin: 10px 0; }
+  .budget-bar-fill { height: 100%; border-radius: 20px; transition: width 0.3s; }
+  .budget-explore { background: linear-gradient(90deg, var(--sage), var(--sage-light)); }
+  .budget-exploit { background: linear-gradient(90deg, var(--terra), var(--rust)); }
+
+  .phase-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .phase-explore { background: rgba(106,143,115,0.15); color: var(--sage); border: 1px solid rgba(106,143,115,0.3); }
+  .phase-exploit { background: rgba(193,127,78,0.12); color: var(--terra-dark); border: 1px solid rgba(193,127,78,0.3); }
+
+  .n-slider-wrap { margin: 16px 0; }
+  .n-display { font-family: 'Courier New', Courier, monospace; font-size: 28px; font-weight: 700; color: var(--terra); }
+
+  /* ── GAME 4 UCB INTERACTIVE ──────────────────────── */
+  .ucb-game-wrap {
+    background: linear-gradient(135deg, #1c1408 0%, #2c1e10 50%, #1a1708 100%);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .ucb-game-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 30%, rgba(193,127,78,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(106,143,115,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .ucb-game-wrap > * { position: relative; z-index: 1; }
+  .ucb-urns { display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0; }
+  .ucb-urn {
+    flex: 1; min-width: 100px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ucb-urn:hover { background: rgba(45,158,95,0.1); border-color: rgba(45,158,95,0.5); }
+  .ucb-urn.best-ucb {
+    border-color: rgba(45,158,95,0.85);
+    background: rgba(45,158,95,0.18);
+    box-shadow: 0 0 22px rgba(45,158,95,0.3);
+  }
+  .ucb-urn.locked { opacity: 0.4; cursor: not-allowed; }
+  .ucb-urn.locked:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); box-shadow: none; }
+  .ucb-urn-title { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+  .ucb-urn-bounds { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin: 6px 0; }
+  .ucb-urn-upper { font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: 700; color: #4cd68a; }
+  .ucb-ci-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 20px; margin: 8px 0; }
+  .ucb-ci-bar { height: 100%; background: linear-gradient(90deg, rgba(45,158,95,0.5), #2d9e5f); border-radius: 20px; transition: all 0.4s; }
+  .ucb-status {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    min-height: 42px;
+    margin: 12px 0;
+  }
+  .ucb-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ucb-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    transition: all 0.18s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .ucb-btn-auto { background: linear-gradient(135deg, #c17f4e, #d4622a); color: white; }
+  .ucb-btn-auto:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(193,127,78,0.4); }
+  .ucb-btn-reveal { background: rgba(106,143,115,0.3); color: #8fb098; border: 1px solid rgba(106,143,115,0.4); }
+  .ucb-btn-reveal:hover { background: rgba(106,143,115,0.45); }
+  .ucb-btn-reset { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); }
+  .ucb-btn-reset:hover { background: rgba(255,255,255,0.1); }
+  .ucb-score { font-family: 'Courier New', Courier, monospace; font-size: 22px; font-weight: 700; color: #f0c070; }
+  .ucb-meta { display: flex; gap: 20px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .ucb-meta-item { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .ucb-meta-item strong { color: rgba(255,255,255,0.85); font-family: 'Courier New', Courier, monospace; }
+
+  /* ── INTRO ───────────────────────────────────────── */
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .game-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .game-card:hover { border-color: var(--terra); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .game-card-num {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--terra);
+    margin-bottom: 8px;
+  }
+  .game-card h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .game-card p { font-size: 13px; color: var(--ink-muted); line-height: 1.55; }
+
+  /* ── PROGRESS ───────────────────────────────────── */
+  .progress-dots { display: flex; gap: 6px; margin-top: 8px; }
+  .progress-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--sand-dark);
+    transition: background 0.2s;
+  }
+  .progress-dot.done { background: var(--terra); }
+
+  /* ── MISC ────────────────────────────────────────── */
+  .divider { height: 1px; background: var(--border); margin: 28px 0; }
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(193,127,78,0.1);
+    color: var(--terra-dark);
+    border: 1px solid rgba(193,127,78,0.25);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-right: 4px;
+  }
+  .tag.green { background: rgba(106,143,115,0.1); color: var(--sage); border-color: rgba(106,143,115,0.25); }
+
+  .tooltip { position: relative; display: inline-block; }
+  .tooltip-text {
+    display: none;
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: rgba(255,255,255,0.9);
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .tooltip:hover .tooltip-text { display: block; }
+
+  @media (max-width: 768px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; padding: 20px 0; }
+    .nav-section { display: flex; flex-wrap: wrap; gap: 4px; }
+    .nav-item { font-size: 12px; padding: 7px 10px; }
+    .main { padding: 24px 20px; }
+    .game-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── PAGE NAVIGATION BUTTONS ── */
+  .page-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 56px 0 16px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .page-nav.only-next { justify-content: flex-end; }
+
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 22px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1;
+  }
+  .nav-btn-next {
+    background: linear-gradient(135deg, var(--terra), var(--rust));
+    color: white;
+    box-shadow: 0 3px 14px rgba(193,127,78,0.32);
+  }
+  .nav-btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(193,127,78,0.45); }
+  .nav-btn-back {
+    background: var(--warm-white);
+    color: var(--ink-light);
+    border: 1px solid var(--sand-dark);
+    box-shadow: 0 2px 6px rgba(44,36,22,0.06);
+  }
+  .nav-btn-back:hover { background: var(--sand); color: var(--ink); transform: translateY(-1px); }
+  .nav-btn-label { display: flex; flex-direction: column; text-align: left; }
+  .nav-btn-hint { font-size: 10px; font-weight: 400; opacity: 0.7; margin-bottom: 1px; }
+  .nav-btn-title { font-size: 13.5px; }
+  .nav-btn-next .nav-btn-label { text-align: right; }
+  .nav-btn-arrow { flex-shrink: 0; width: 18px; height: 18px; }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ── MAIN ───────────────────────────────────────── -->
+<main class="main">
+
+<!-- ══════════════════════ INTRO PAGE ══════════════════════ -->
+<div class="page visible" id="page-intro">
+  <div class="page-header">
+    <h1 class="page-title">🏺 Welcome to the Urn Games 🏺</h1>
+    <p class="page-subtitle">A hands-on journey through probability estimation, confidence intervals, and bandit algorithms — all through the lens of mysterious urns filled with balls.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">The Setup</div>
+    <p class="prose">Each urn contains balls of two colours: <strong>white</strong> (represented as 1) and <strong>orange</strong> (represented as 0). Your goal across all four games is to understand, estimate, and exploit the hidden probabilities inside these urns.</p>
+    <div class="ball-row">
+      <div class="ball white"></div><div class="ball white"></div><div class="ball orange"></div>
+      <div class="ball white"></div><div class="ball orange"></div><div class="ball white"></div>
+      <div class="ball orange"></div><div class="ball white"></div><div class="ball white"></div>
+      <div class="ball orange"></div><div class="ball white"></div>
+    </div>
+    <p style="font-size:12px;color:var(--ink-muted);margin-top:6px">Example: a mystery urn — true proportions are hidden!</p>
+  </div>
+
+  <div class="game-grid">
+    <div class="game-card" onclick="showPage('game1')">
+      <div class="game-card-num">Game 1</div>
+      <h3>Estimating Ball Proportions</h3>
+      <p>Draw samples and estimate the probability of drawing a white ball using the frequentist approach.</p>
+    </div>
+    <div class="game-card" onclick="showPage('game2')">
+      <div class="game-card-num">Game 2</div>
+      <h3>Confidence Intervals</h3>
+      <p>Learn how confident you should be in your estimates and watch intervals shrink with more data.</p>
+    </div>
+    <div class="game-card" onclick="showPage('game3')">
+      <div class="game-card-num">Game 3</div>
+      <h3>Estimate-then-Exploit</h3>
+      <p>You're a marketer! Find the better ad within a budget of 200 shows. Choose your exploration trade-off.</p>
+    </div>
+    <div class="game-card" onclick="showPage('game4')">
+      <div class="game-card-num">Game 4</div>
+      <h3>Proto-UCB</h3>
+      <p>Use Upper Confidence Bounds to automatically balance exploration and exploitation across three urns.</p>
+    </div>
+  </div>
+
+
+  <div class="page-nav">
+    <span></span>
+    <button class="nav-btn nav-btn-next" onclick="showPage('game1')">
+      <span class="nav-btn-label"><span class="nav-btn-hint">First game</span><span class="nav-btn-title">Estimating Ball Proportions</span></span>
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════ GAME 1 ══════════════════════ -->
+<div class="page" id="page-game1">
+  <div class="page-header">
+    <span class="tag">Game 1</span>
+    <h1 class="page-title">Estimating Ball Proportions</h1>
+    <p class="page-subtitle">Learn about probability estimation through sampling, and watch the Law of Large Numbers in action.</p>
+  </div>
+
+  <h2 class="section-title">The Setup</h2>
+  <p class="prose">You are given an urn containing an unknown number of balls. Your task is to draw samples <em>with replacement</em> and use your observations to estimate the probability of drawing a white ball.</p>
+
+  <div class="callout">
+    <p>Drawing <strong>with replacement</strong> means: after each draw, the ball is put back. The urn never changes. Each draw is independent.</p>
+  </div>
+
+  <h2 class="section-title">Step 1 · Create the Urn</h2>
+  <p class="prose">We represent the urn as a Python list: orange balls are <code>0</code>, white balls are <code>1</code>. Complete the function below:</p>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        urn_helpers.py · create_urn()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Fill in the function body. The urn should contain <strong>n_orange</strong> zeros and <strong>n_white</strong> ones concatenated together.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">create_urn</span>(<span class="var">n_orange</span>, <span class="var">n_white</span>):</div>
+        <div class="code-line editable-line"><span class="var">    urn </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex1-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="kw">return</span> <span class="var">urn</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx1()">▶ Run &amp; Check</button>
+        <button class="btn btn-hint" onclick="toggleHint('hint1')">💡 Hint</button>
+      </div>
+      <div id="hint1" style="display:none" class="info-box"><p>In Python, you can repeat a list: <code>[0] * 3</code> gives <code>[0, 0, 0]</code>. Combine two lists with <code>+</code>.</p></div>
+      <div class="feedback" id="fb-ex1"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Step 2 · Draw from the Urn</h2>
+  <p class="prose">Now complete <code>draw_from_urn</code>. Each draw picks one ball at random (using <code>random.choice</code>) and adds it to the list.</p>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        urn_helpers.py · draw_from_urn()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Inside the loop, use <strong>random.choice(urn)</strong> to pick a ball and append it to <code>draws</code>.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">draw_from_urn</span>(<span class="var">urn</span>, <span class="var">n_draws</span>):</div>
+        <div class="code-line">    <span class="var">draws</span> <span class="op">=</span> []</div>
+        <div class="code-line">    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n_draws</span>):</div>
+        <div class="code-line editable-line"><span class="var">        ball </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex2-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">        <span class="var">draws</span>.<span class="fn">append</span>(<span class="var">ball</span>)</div>
+        <div class="code-line">    <span class="kw">return</span> <span class="var">draws</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx2()">▶ Run &amp; Check</button>
+        <button class="btn btn-hint" onclick="toggleHint('hint2')">💡 Hint</button>
+      </div>
+      <div id="hint2" style="display:none" class="info-box"><p><code>random.choice(list)</code> picks a uniformly random element from any list. The urn is just a list of 0s and 1s!</p></div>
+      <div class="feedback" id="fb-ex2"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Step 3 · Frequentist Estimation</h2>
+  <p class="prose">The frequentist estimate is simple: count how many white balls (1s) you saw, and divide by the total number of draws.</p>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        urn_helpers.py · frequentist_estimation()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Count the white balls and compute the proportion. The variable <code>white_count</code> already counts 1s. Fill in the formula for <code>probability</code>.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">frequentist_estimation</span>(<span class="var">sample</span>):</div>
+        <div class="code-line">    <span class="kw">if</span> <span class="fn">len</span>(<span class="var">sample</span>) <span class="op">==</span> <span class="num">0</span>:</div>
+        <div class="code-line">        <span class="kw">return</span> <span class="num">0.0</span></div>
+        <div class="code-line">    <span class="var">white_count</span> <span class="op">=</span> <span class="fn">sum</span>(<span class="num">1</span> <span class="kw">for</span> <span class="var">b</span> <span class="kw">in</span> <span class="var">sample</span> <span class="kw">if</span> <span class="var">b</span> <span class="op">==</span> <span class="num">1</span>)</div>
+        <div class="code-line">    <span class="var">total_count</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">sample</span>)</div>
+        <div class="code-line editable-line"><span class="var">    probability </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex3-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="kw">return</span> <span class="var">probability</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx3()">▶ Run &amp; Check</button>
+      </div>
+      <div class="feedback" id="fb-ex3"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Visualisation · Convergence</h2>
+  <p class="prose">Watch how the estimated probability converges to the true value as sample size grows. Adjust the parameters and re-run.</p>
+
+  <div class="sim-canvas-wrap">
+    <div id="chart-convergence-wrap" style="width:100%;background:#f0e6d3;border-radius:8px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:var(--ink-muted);font-size:13px;font-style:italic">Press ▶ Simulate to run</div></div>
+    <div class="sim-controls">
+      <div class="sim-param">
+        <label>White balls</label>
+        <input type="range" id="sl-nwhite" min="10" max="90" value="60" oninput="updateSim1()">
+        <span id="lbl-nwhite">60</span> / 100
+      </div>
+      <div class="sim-param">
+        <label>Trials</label>
+        <input type="range" id="sl-ntrials" min="3" max="20" value="8" oninput="updateSim1()">
+        <span id="lbl-ntrials">8</span>
+      </div>
+      <div class="sim-param">
+        <label>Max sample size</label>
+        <input type="range" id="sl-maxn" min="10" max="1000" step="10" value="1000" oninput="updateSim1()">
+        <span id="lbl-maxn">1000</span>
+      </div>
+      <button class="btn btn-primary" onclick="runSim1()">▶ Simulate</button>
+    </div>
+  </div>
+
+  <h2 class="section-title">Results Table</h2>
+  <p class="prose">How does accuracy vary with sample size? Click Simulate above to populate this table.</p>
+  <table class="results-table" id="tbl-game1">
+    <thead><tr><th>Sample Size</th><th>Estimate P(White)</th><th>True P(White)</th><th>Error</th><th>Contains True?</th></tr></thead>
+    <tbody id="tbl-game1-body"><tr><td colspan="5" style="text-align:center;color:var(--ink-muted)">Run simulation above →</td></tr></tbody>
+  </table>
+
+
+  <div class="page-nav">
+    <button class="nav-btn nav-btn-back" onclick="showPage('intro')">
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span class="nav-btn-label"><span class="nav-btn-hint">Back to</span><span class="nav-btn-title">Introduction</span></span>
+    </button>
+    <button class="nav-btn nav-btn-next" onclick="showPage('game2')">
+      <span class="nav-btn-label"><span class="nav-btn-hint">Next game</span><span class="nav-btn-title">Confidence Intervals</span></span>
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════ GAME 2 ══════════════════════ -->
+<div class="page" id="page-game2">
+  <div class="page-header">
+    <span class="tag">Game 2</span>
+    <h1 class="page-title">Confidence Intervals</h1>
+    <p class="page-subtitle">Understand how confident you should be in your estimates — and watch intervals shrink as you gather more data.</p>
+  </div>
+
+  <h2 class="section-title">What is a Confidence Interval?</h2>
+  <p class="prose">A single number like <em>0.6</em> tells us our estimate, but how certain is it? A confidence interval gives us a range that's likely to contain the true value. Wider interval = less certain. Narrower = more data, more confident.</p>
+
+  <div class="card">
+    <div class="card-title">📐 The Formula</div>
+    <div class="formula-box">
+      <div class="formula-label">Confidence Interval</div>
+      <span style="font-size:20px">( p̂ₙ − 1/√n , p̂ₙ + 1/√n )</span>
+    </div>
+    <p style="font-size:13px;color:var(--ink-muted);margin-top:12px">Where <strong>p̂</strong> is our estimated probability and <strong>n</strong> is the sample size. Larger n → smaller margin → tighter interval.</p>
+  </div>
+
+  <h2 class="section-title">Exercise · Implement the CI</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        urn_helpers.py · compute_confidence_interval()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Using the formula above, compute the <strong>margin</strong> and set the lower and upper bounds. Remember: √n = n<sup>0.5</sup> in Python.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">compute_confidence_interval</span>(<span class="var">sample</span>):</div>
+        <div class="code-line">    <span class="kw">if</span> <span class="fn">len</span>(<span class="var">sample</span>) <span class="op">==</span> <span class="num">0</span>:</div>
+        <div class="code-line">        <span class="kw">return</span> (<span class="num">0.0</span>, <span class="num">1.0</span>)</div>
+        <div class="code-line">    <span class="var">p_hat</span> <span class="op">=</span> <span class="fn">frequentist_estimation</span>(<span class="var">sample</span>)</div>
+        <div class="code-line">    <span class="var">n</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">sample</span>)</div>
+        <div class="code-line editable-line"><span class="var">    margin </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex4-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="var">lower</span> <span class="op">=</span> <span class="fn">max</span>(<span class="num">0.0</span>, <span class="var">p_hat</span> <span class="op">-</span> <span class="var">margin</span>)</div>
+        <div class="code-line">    <span class="var">upper</span> <span class="op">=</span> <span class="fn">min</span>(<span class="num">1.0</span>, <span class="var">p_hat</span> <span class="op">+</span> <span class="var">margin</span>)</div>
+        <div class="code-line">    <span class="kw">return</span> (<span class="var">lower</span>, <span class="var">upper</span>)</div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx4()">▶ Run &amp; Check</button>
+        <button class="btn btn-hint" onclick="toggleHint('hint4')">💡 Hint</button>
+      </div>
+      <div id="hint4" style="display:none" class="info-box"><p>In Python, <code>n ** 0.5</code> is √n. So <code>1.0 / n ** 0.5</code> gives 1/√n. This is your margin.</p></div>
+      <div class="feedback" id="fb-ex4"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Visualisation · Shrinking Intervals</h2>
+  <p class="prose">Adjust the true probability and watch how intervals narrow as n grows. The red line is the true probability.</p>
+
+  <div class="sim-canvas-wrap">
+    <div id="chart-ci-wrap" style="width:100%;background:#f0e6d3;border-radius:8px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:var(--ink-muted);font-size:13px;font-style:italic">Press ▶ Simulate to run</div></div>
+    <div class="sim-controls">
+      <div class="sim-param">
+        <label>True P(white)</label>
+        <input type="range" id="sl-trueprob" min="10" max="90" value="60" oninput="updateSim2()">
+        <span id="lbl-trueprob">0.60</span>
+      </div>
+      <div class="sim-param">
+        <label>Max sample size</label>
+        <input type="range" id="sl-maxn2" min="10" max="1000" step="10" value="1000" oninput="updateSim2()">
+        <span id="lbl-maxn2">1000</span>
+      </div>
+      <button class="btn btn-primary" onclick="runSim2()">▶ Simulate</button>
+    </div>
+  </div>
+
+  <h2 class="section-title">Results Table</h2>
+  <table class="results-table">
+    <thead><tr><th>n</th><th>Estimate</th><th>Lower</th><th>Upper</th><th>Width</th><th>Contains True?</th></tr></thead>
+    <tbody id="tbl-game2-body"><tr><td colspan="6" style="text-align:center;color:var(--ink-muted)">Run simulation above →</td></tr></tbody>
+  </table>
+
+
+  <div class="page-nav">
+    <button class="nav-btn nav-btn-back" onclick="showPage('game1')">
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span class="nav-btn-label"><span class="nav-btn-hint">Back to</span><span class="nav-btn-title">Estimation</span></span>
+    </button>
+    <button class="nav-btn nav-btn-next" onclick="showPage('game3')">
+      <span class="nav-btn-label"><span class="nav-btn-hint">Next game</span><span class="nav-btn-title">Estimate-then-Exploit</span></span>
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════ GAME 3 ══════════════════════ -->
+<div class="page" id="page-game3">
+  <div class="page-header">
+    <span class="tag">Game 3</span>
+    <h1 class="page-title">The Estimate-then-Exploit Game</h1>
+    <p class="page-subtitle">You're a digital marketer. One of two ads secretly performs much better. With a budget of 200 shows — how much do you spend estimating?</p>
+  </div>
+
+  <div class="callout">
+    <p><strong>Ad A</strong> has a 30% click rate. <strong>Ad B</strong> has a 70% click rate (much better!). But you don't know which is which until you measure. Every show spends 1 unit of budget.</p>
+  </div>
+
+  <h2 class="section-title">The Strategy</h2>
+  <p class="prose">The "Estimate-then-Exploit" strategy has two phases:</p>
+  <div class="card">
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <span class="phase-badge phase-explore">Phase 1 · Estimate</span>
+        <p style="font-size:13.5px;color:var(--ink-light);margin-top:10px;line-height:1.6">Show each ad <strong>n</strong> times. Record clicks. This costs <strong>2n</strong> budget. You get an estimate of each ad's click rate.</p>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <span class="phase-badge phase-exploit">Phase 2 · Exploit</span>
+        <p style="font-size:13.5px;color:var(--ink-light);margin-top:10px;line-height:1.6">Show the <em>seemingly better</em> ad for the remaining <strong>200 − 2n</strong> shows. Maximise total clicks!</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Exercise 1 · Run the Estimation Phase</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        game3.py · estimation_phase()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Complete the estimation. For each ad, call <code>show_ad(probability)</code> and count clicks. Then compute the estimated click rate: <strong>clicks / n</strong>.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="var">clicks_A</span> <span class="op">=</span> <span class="num">0</span></div>
+        <div class="code-line"><span class="kw">for</span> <span class="var">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n</span>):</div>
+        <div class="code-line">    <span class="kw">if</span> <span class="fn">show_ad</span>(<span class="num">0.3</span>):</div>
+        <div class="code-line">        <span class="var">clicks_A</span> <span class="op">+=</span> <span class="num">1</span></div>
+        <div class="code-line"></div>
+        <div class="code-line"><span class="var">clicks_B</span> <span class="op">=</span> <span class="num">0</span></div>
+        <div class="code-line"><span class="kw">for</span> <span class="var">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n</span>):</div>
+        <div class="code-line">    <span class="kw">if</span> <span class="fn">show_ad</span>(<span class="num">0.7</span>):</div>
+        <div class="code-line">        <span class="var">clicks_B</span> <span class="op">+=</span> <span class="num">1</span></div>
+        <div class="code-line"></div>
+        <div class="code-line editable-line"><span class="var">estimate_A </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex5-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line"><span class="var">estimate_B</span> <span class="op">=</span> <span class="var">clicks_B</span> <span class="op">/</span> <span class="var">n</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx5()">▶ Check</button>
+      </div>
+      <div class="feedback" id="fb-ex5"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Exercise 2 · Calculate Total Clicks</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        game3.py · final_score()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        After the game, sum up clicks from all three parts: estimation of A, estimation of B, and exploitation.
+      </div>
+      <div class="code-area">
+        <div class="code-line editable-line"><span class="var">total_clicks </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex6-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line"><span class="fn">print</span>(<span class="str">f"Your score: {total_clicks}"</span>)</div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx6()">▶ Check</button>
+      </div>
+      <div class="feedback" id="fb-ex6"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">🎮 Interactive Simulation</h2>
+  <p class="prose">Now play the game! Drag the slider to choose <strong>n</strong> (how many times to show each ad during estimation). The simulator will play out the full strategy and show your score.</p>
+
+  <div class="card">
+    <div class="card-title">Choose your n</div>
+    <div class="n-slider-wrap">
+      <input type="range" id="sl-n" min="1" max="99" value="20" oninput="updateGame3UI()" style="width:100%;accent-color:var(--terra)">
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+      <div>
+        <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.07em">You chose n =</div>
+        <div class="n-display" id="g3-n-display">20</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--ink-muted)">Estimation cost</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:18px;color:var(--sage);" id="g3-est-cost">40 shows</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--ink-muted)">Exploitation budget</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:18px;color:var(--terra);" id="g3-exploit-budget">160 shows</div>
+      </div>
+    </div>
+    <div style="margin:10px 0">
+      <div style="font-size:12px;color:var(--ink-muted);margin-bottom:4px">Budget allocation</div>
+      <div style="display:flex;height:16px;border-radius:20px;overflow:hidden;gap:2px">
+        <div id="g3-bar-explore" style="height:100%;background:linear-gradient(90deg,var(--sage),var(--sage-light));border-radius:20px 0 0 20px;transition:width .3s;width:20%"></div>
+        <div id="g3-bar-exploit" style="flex:1;height:100%;background:linear-gradient(90deg,var(--terra),var(--rust));border-radius:0 20px 20px 0;transition:width .3s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-muted);margin-top:4px">
+        <span style="color:var(--sage)">Estimation (2n)</span>
+        <span style="color:var(--terra)">Exploitation</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="runGame3()" style="margin-top:8px">▶ Play the Game!</button>
+  </div>
+
+  <div id="g3-result" style="display:none">
+    <div class="card" style="border-color:var(--terra)">
+      <div class="card-title">🎉 Results</div>
+      <div id="g3-result-body"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Reflection</h2>
+  <p class="prose">Try many different values of n. What happens with very small n (like 3)? What about very large n (like 80)? Is the result always the same for the same n? Why not?</p>
+
+
+  <div class="page-nav">
+    <button class="nav-btn nav-btn-back" onclick="showPage('game2')">
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span class="nav-btn-label"><span class="nav-btn-hint">Back to</span><span class="nav-btn-title">Confidence Intervals</span></span>
+    </button>
+    <button class="nav-btn nav-btn-next" onclick="showPage('game4')">
+      <span class="nav-btn-label"><span class="nav-btn-hint">Next game</span><span class="nav-btn-title">Proto-UCB</span></span>
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════ GAME 4 ══════════════════════ -->
+<div class="page" id="page-game4">
+  <div class="page-header">
+    <span class="tag">Game 4</span>
+    <h1 class="page-title">Proto-UCB Algorithm</h1>
+    <p class="page-subtitle">Upper Confidence Bounds — a smarter strategy that automatically balances exploration and exploitation, with zero hyperparameters.</p>
+  </div>
+
+  <h2 class="section-title">The Idea: Optimistic Selection</h2>
+  <p class="prose">Instead of randomly exploring (like Thompson Sampling), Proto-UCB is <em>optimistic</em>: it always picks the urn that <em>could potentially be best</em>. For each urn it computes an upper confidence bound and selects the highest.</p>
+
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
+      <div style="padding:14px;background:var(--sand);border-radius:10px">
+        <div style="font-size:22px;margin-bottom:4px">1️⃣</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">Estimate</div>
+        <div style="font-size:12px;color:var(--ink-muted)">Compute p̂ from samples</div>
+      </div>
+      <div style="padding:14px;background:var(--sand);border-radius:10px">
+        <div style="font-size:22px;margin-bottom:4px">2️⃣</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">Upper Bound</div>
+        <div style="font-size:12px;color:var(--ink-muted)">UCB = p̂ + 1/√n</div>
+      </div>
+      <div style="padding:14px;background:var(--sand);border-radius:10px">
+        <div style="font-size:22px;margin-bottom:4px">3️⃣</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">Select Best</div>
+        <div style="font-size:12px;color:var(--ink-muted)">Pick highest UCB</div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:14px">
+      <p><strong>Early on:</strong> few samples → wide intervals → optimism pushes you to explore. <strong>Later:</strong> many samples → narrow intervals → you focus on the truly best urn. No ε to tune!</p>
+    </div>
+  </div>
+
+  <h2 class="section-title">Exercise 1 · draw_from_urn_ucb()</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        game4.py · draw_from_urn_ucb()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Inside the loop, draw one ball at random from the urn using <code>random.choice(urn)</code> and append it to <code>draws</code>.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">draw_from_urn_ucb</span>(<span class="var">urn</span>, <span class="var">n_draws</span>):</div>
+        <div class="code-line">    <span class="var">draws</span> <span class="op">=</span> []</div>
+        <div class="code-line">    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n_draws</span>):</div>
+        <div class="code-line editable-line"><span class="var">        ball </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex7-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">        <span class="var">draws</span>.<span class="fn">append</span>(<span class="var">ball</span>)</div>
+        <div class="code-line">    <span class="kw">return</span> <span class="var">draws</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx7()">▶ Run &amp; Check</button>
+      </div>
+      <div class="feedback" id="fb-ex7"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Exercise 2 · compute_confidence_interval_ucb()</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        game4.py · compute_confidence_interval_ucb()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        The margin is <strong>1 / √n</strong>. Compute it and return (lower, upper) bounds, clipped to [0, 1].
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">compute_confidence_interval_ucb</span>(<span class="var">sample</span>):</div>
+        <div class="code-line">    <span class="kw">if</span> <span class="fn">len</span>(<span class="var">sample</span>) <span class="op">==</span> <span class="num">0</span>:</div>
+        <div class="code-line">        <span class="kw">return</span> (<span class="num">0.0</span>, <span class="num">1.0</span>)</div>
+        <div class="code-line">    <span class="var">p_hat</span> <span class="op">=</span> <span class="fn">frequentist_estimation</span>(<span class="var">sample</span>)</div>
+        <div class="code-line">    <span class="var">n</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">sample</span>)</div>
+        <div class="code-line editable-line"><span class="var">    margin </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex8-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="var">lower</span> <span class="op">=</span> <span class="fn">max</span>(<span class="num">0.0</span>, <span class="var">p_hat</span> <span class="op">-</span> <span class="var">margin</span>)</div>
+        <div class="code-line">    <span class="var">upper</span> <span class="op">=</span> <span class="fn">min</span>(<span class="num">1.0</span>, <span class="var">p_hat</span> <span class="op">+</span> <span class="var">margin</span>)</div>
+        <div class="code-line">    <span class="kw">return</span> (<span class="var">lower</span>, <span class="var">upper</span>)</div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx8()">▶ Run &amp; Check</button>
+        <button class="btn btn-hint" onclick="toggleHint('hint8')">💡 Hint</button>
+      </div>
+      <div id="hint8" style="display:none" class="info-box"><p>Identical to Game 2! The margin is <code>1.0 / n ** 0.5</code>. Remember n ** 0.5 = √n.</p></div>
+      <div class="feedback" id="fb-ex8"></div>
+    </div>
+  </div>
+
+  <h2 class="section-title">🎮 Interactive UCB Demo</h2>
+  <p class="prose">Three urns with hidden compositions. You may only draw from the urn with the highest upper confidence bound. Can you find the best urn?</p>
+
+  <div class="ucb-game-wrap" id="ucb-game">
+    <div class="ucb-meta">
+      <div class="ucb-meta-item">Total draws: <strong id="ucb-n">0</strong></div>
+      <div class="ucb-meta-item">Score (whites): <strong id="ucb-score">0</strong></div>
+      <div class="ucb-meta-item">Best urn: <strong id="ucb-best-label">?</strong></div>
+    </div>
+    <div class="ucb-urns" id="ucb-urns-container"></div>
+    <div class="ucb-status" id="ucb-status">Click any urn to start — the algorithm will guide your choices!</div>
+    <div class="ucb-controls">
+      <button class="ucb-btn ucb-btn-auto" onclick="ucbAutoPlay()">⚡ Auto-Play 10</button>
+      <button class="ucb-btn ucb-btn-reveal" onclick="ucbReveal()">🔍 Reveal Urns</button>
+      <button class="ucb-btn ucb-btn-reset" onclick="ucbReset()">↺ Reset</button>
+    </div>
+  </div>
+
+  <h2 class="section-title">Visualisation · UCB vs Epsilon-Greedy</h2>
+  <p class="prose">Run the simulation to see cumulative reward and regret for Proto-UCB compared to epsilon-greedy strategies.</p>
+
+  <div class="sim-canvas-wrap">
+    <div id="chart-ucb-wrap" style="width:100%;background:#f0e6d3;border-radius:8px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:var(--ink-muted);font-size:13px;font-style:italic">Press ▶ Compare Algorithms to run</div></div>
+    <div class="sim-controls">
+      <div class="sim-param">
+        <label>n draws</label>
+        <input type="range" id="sl-ndraws" min="10" max="500" step="10" value="200" oninput="document.getElementById('lbl-ndraws').textContent=this.value">
+        <span id="lbl-ndraws">200</span>
+      </div>
+      <div class="sim-param">
+        <label>Trials</label>
+        <input type="range" id="sl-ucbtrials" min="5" max="30" value="15" oninput="document.getElementById('lbl-ucbtrials').textContent=this.value">
+        <span id="lbl-ucbtrials">15</span>
+      </div>
+      <button class="btn btn-primary" onclick="runSimUCB()">▶ Compare Algorithms</button>
+    </div>
+  </div>
+
+  <h2 class="section-title">Understanding Proto-UCB</h2>
+  <div class="card">
+    <p class="prose" style="margin-bottom:10px"><strong>Key insight:</strong> Empty urns get UCB = 1.0 (maximum possible), so the algorithm must explore them first. As you gather data, the intervals shrink and the truly best urn emerges.</p>
+    <p class="prose" style="margin-bottom:0"><strong>Vs. Epsilon-Greedy:</strong> UCB adapts automatically — explores more early, exploits more later. No ε to tune, and typically lower regret especially when ε is poorly chosen.</p>
+  </div>
+  <div class="page-nav">
+    <button class="nav-btn nav-btn-back" onclick="showPage('game3')">
+      <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span class="nav-btn-label"><span class="nav-btn-hint">Back to</span><span class="nav-btn-title">Estimate-then-Exploit</span></span>
+    </button>
+    <span></span>
+  </div>
+</div>
+
+</main>
+</div><!-- end shell -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+  document.getElementById('page-' + id).classList.add('visible');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) {
+      n.classList.add('active');
+    }
+  });
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════
+// UTILITY FUNCTIONS (JavaScript equivalents)
+// ═══════════════════════════════════════════════════
+function randChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function createUrn(nOrange, nWhite) {
+  return Array(nOrange).fill(0).concat(Array(nWhite).fill(1));
+}
+function drawFromUrn(urn, n) {
+  const draws = [];
+  for (let i = 0; i < n; i++) draws.push(randChoice(urn));
+  return draws;
+}
+function frequentistEstimation(sample) {
+  if (!sample.length) return 0;
+  return sample.reduce((a,b) => a+b, 0) / sample.length;
+}
+function computeCI(sample) {
+  if (!sample.length) return [0, 1];
+  const p = frequentistEstimation(sample);
+  const margin = 1.0 / Math.sqrt(sample.length);
+  return [Math.max(0, p - margin), Math.min(1, p + margin)];
+}
+function computeUCB(sample) {
+  return computeCI(sample)[1];
+}
+function showAd(prob) {
+  return Math.random() < prob;
+}
+
+// ═══════════════════════════════════════════════════
+// HINT TOGGLE
+// ═══════════════════════════════════════════════════
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function resetEx(inputId, val, fbId) {
+  document.getElementById(inputId).value = val;
+  const fb = document.getElementById(fbId);
+  if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+}
+
+// ═══════════════════════════════════════════════════
+// EXERCISE CHECKERS
+// ═══════════════════════════════════════════════════
+function setFeedback(id, ok, msg) {
+  const el = document.getElementById(id);
+  el.className = 'feedback show ' + (ok ? 'success' : 'error');
+  el.textContent = (ok ? '✓ ' : '✗ ') + msg;
+}
+function setOutput(id, msg) {
+  const el = document.getElementById(id);
+  el.className = 'feedback show output';
+  el.textContent = msg;
+}
+
+// Ex 1 — create_urn
+function checkEx1() {
+  const val = document.getElementById('ex1-input').value.trim();
+  if (!val) {
+    setFeedback('fb-ex1', false, 'Please enter your answer first.');
+    return;
+  }
+
+  // Accept any reasonable answer pattern:
+  // Python style: n_orange * [0] + n_white * [1]  (the expected answer)
+  // Also accept variations with variable names mentioned
+  const lower = val.toLowerCase().replace(/\s+/g, '');
+
+  // Pattern checks — does the answer express the right concept?
+  const hasOrangeZero = (lower.includes('n_orange') || lower.includes('norange')) &&
+                        (lower.includes('[0]') || lower.includes('*[0]') || lower.includes('0]'));
+  const hasWhiteOne  =  (lower.includes('n_white') || lower.includes('nwhite')) &&
+                        (lower.includes('[1]') || lower.includes('*[1]') || lower.includes('1]'));
+  const hasConcat = lower.includes('+');
+  const hasMult = lower.includes('*');
+
+  // Simulate with JS equivalents to verify correctness
+  try {
+    // Convert Python list repetition to JS: n_orange * [0] → Array(n_orange).fill(0)
+    let jsExpr = val
+      .replace(/(\w+)\s*\*\s*\[0\]/g, 'Array($1).fill(0)')
+      .replace(/(\w+)\s*\*\s*\[1\]/g, 'Array($1).fill(1)')
+      .replace(/\[0\]\s*\*\s*(\w+)/g, 'Array($1).fill(0)')
+      .replace(/\[1\]\s*\*\s*(\w+)/g, 'Array($1).fill(1)')
+      .replace(/\bn_orange\b/g, '3')
+      .replace(/\bn_white\b/g, '7');
+    // handle array + array → concat. Wrap entire expression.
+    // Strategy: replace "Array(a).fill(x) + Array(b).fill(y)" as a unit
+    jsExpr = jsExpr.replace(
+      /(Array\([^)]+\)\.fill\(\d\))\s*\+\s*(Array\([^)]+\)\.fill\(\d\))/g,
+      '$1.concat($2)'
+    );
+
+    const result = eval(jsExpr);
+
+    if (Array.isArray(result) && result.length === 10 &&
+        result.filter(x=>x===0).length === 3 &&
+        result.filter(x=>x===1).length === 7) {
+      setOutput('fb-ex1', '✓ Correct!\n\ncreate_urn(3, 7) → ' + JSON.stringify(result) +
+        '\n3 orange (0s) + 7 white (1s) = 10 balls total ✓');
+      runSim1();
+      return;
+    }
+  } catch(e) { /* fall through to pattern check */ }
+
+  // Fall back to pattern-based check for valid Python expressions
+  if (hasOrangeZero && hasWhiteOne && hasConcat && hasMult) {
+    setOutput('fb-ex1', '✓ Correct!\n\ncreate_urn(3, 7) → [0, 0, 0, 1, 1, 1, 1, 1, 1, 1]\n3 orange (0s) + 7 white (1s) = 10 balls total ✓');
+    runSim1();
+  } else {
+    const missing = [];
+    if (!hasOrangeZero) missing.push('n_orange * [0] for the orange balls');
+    if (!hasWhiteOne)   missing.push('n_white * [1] for the white balls');
+    if (!hasConcat)     missing.push('+ to join the two lists');
+    setFeedback('fb-ex1', false,
+      'Not quite. Missing: ' + (missing.length ? missing.join(', ') : 'check your syntax') +
+      '.\n\nExpected: n_orange * [0] + n_white * [1]');
+  }
+}
+
+// Ex 2 — draw_from_urn
+function checkEx2() {
+  const val = document.getElementById('ex2-input').value.trim();
+  if (val.includes('random.choice') || val.includes('choice') || val.includes('randChoice')) {
+    setFeedback('fb-ex2', true, 'Correct! Using random.choice(urn) picks a uniformly random ball on each draw.');
+    // show demo output
+    const urn = createUrn(40, 60);
+    const sample = drawFromUrn(urn, 20);
+    setOutput('fb-ex2', '✓ Correct!\n\nDemo: draw_from_urn(urn, 20) → ' + JSON.stringify(sample) +
+      '\nWhite count: ' + sample.filter(x=>x===1).length + '/20');
+  } else {
+    setFeedback('fb-ex2', false, 'Use random.choice(urn) to pick a random ball. E.g.: ball = random.choice(urn)');
+  }
+}
+
+// Ex 3 — frequentist_estimation
+function checkEx3() {
+  const val = document.getElementById('ex3-input').value.trim();
+  try {
+    const result = eval(val.replace('white_count','4').replace('total_count','10'));
+    if (Math.abs(result - 0.4) < 0.001) {
+      const urn = createUrn(40,60);
+      const sample = drawFromUrn(urn, 100);
+      const est = frequentistEstimation(sample);
+      setOutput('fb-ex3', '✓ Correct!\n\nDemo: 100 draws from urn (true P=0.6)\nEstimate: ' + est.toFixed(4) + '\nTrue P(white): 0.6000\nError: ' + Math.abs(est-0.6).toFixed(4));
+    } else {
+      setFeedback('fb-ex3', false, 'Got ' + result + ' for 4/10. Expected 0.4. Try: white_count / total_count');
+    }
+  } catch(e) {
+    setFeedback('fb-ex3', false, 'Syntax error: ' + e.message);
+  }
+}
+
+// Ex 4 — confidence interval
+function checkEx4() {
+  const val = document.getElementById('ex4-input').value.trim();
+  try {
+    const n = 100;
+    const result = eval(val.replace(/\bn\b/g, '100'));
+    if (Math.abs(result - 0.1) < 0.001) {
+      const urn = createUrn(40,60);
+      const sizes = [10,50,100,500];
+      let out = '✓ Correct!\n\n';
+      out += 'n      | CI Width\n' + '-'.repeat(22) + '\n';
+      sizes.forEach(s => {
+        const w = 2.0 / Math.sqrt(s);
+        out += String(s).padEnd(7) + '| ' + w.toFixed(4) + '\n';
+      });
+      setOutput('fb-ex4', out);
+      runSim2();
+    } else {
+      setFeedback('fb-ex4', false, 'Got ' + result + ' for n=100. Expected 0.1 (1/√100). Try: 1.0 / n ** 0.5');
+    }
+  } catch(e) {
+    setFeedback('fb-ex4', false, 'Error: ' + e.message + '. Try: 1.0 / n ** 0.5');
+  }
+}
+
+// Ex 5 — estimation phase
+function checkEx5() {
+  const val = document.getElementById('ex5-input').value.trim();
+  try {
+    const clicks_A = 6, n = 20;
+    const result = eval(val.replace('clicks_A','6').replace(/\bn\b/g,'20'));
+    if (Math.abs(result - 0.3) < 0.001) {
+      setOutput('fb-ex5', '✓ Correct!\n\nDemo with n=20:\nAd A: clicks_A / n = 6/20 = 0.30\nAd B: clicks_B / n = 14/20 = 0.70\nWe correctly identify Ad B as better!');
+    } else {
+      setFeedback('fb-ex5', false, 'Got ' + result + ' for 6/20. Expected 0.3. Try: clicks_A / n');
+    }
+  } catch(e) {
+    setFeedback('fb-ex5', false, 'Error: ' + e.message);
+  }
+}
+
+// Ex 6 — total clicks
+function checkEx6() {
+  const val = document.getElementById('ex6-input').value.trim();
+  try {
+    const clicks_A=6, clicks_B=14, clicks_exploit=112;
+    const result = eval(val.replace('clicks_A','6').replace('clicks_B','14').replace('clicks_exploit','112'));
+    if (result === 132) {
+      setOutput('fb-ex6', '✓ Correct!\n\nFor n=20 (typical run):\nclicks_A (estim) = 6\nclicks_B (estim) = 14\nclicks_exploit   = 112\n─────────────────\ntotal_clicks     = 132');
+    } else {
+      setFeedback('fb-ex6', false, 'Got ' + result + '. Expected 132 (6+14+112). Try: clicks_A + clicks_B + clicks_exploit');
+    }
+  } catch(e) {
+    setFeedback('fb-ex6', false, 'Error: ' + e.message);
+  }
+}
+
+// Ex 7 — draw_from_urn_ucb
+function checkEx7() {
+  const val = document.getElementById('ex7-input').value.trim();
+  if (val.includes('choice') || val.includes('random')) {
+    const urn = createUrn(30,70);
+    const draws = drawFromUrn(urn, 100);
+    const p = frequentistEstimation(draws);
+    setOutput('fb-ex7', '✓ Correct!\n\nTest: 100 draws from urn (true P=0.7)\nEstimate: ' + p.toFixed(4) + '\nLength check: 100 draws ✓');
+  } else {
+    setFeedback('fb-ex7', false, 'Use random.choice(urn) to pick a ball at random.');
+  }
+}
+
+// Ex 8 — compute_confidence_interval_ucb
+function checkEx8() {
+  const val = document.getElementById('ex8-input').value.trim();
+  try {
+    const n = 100;
+    const result = eval(val.replace(/\bn\b/g,'100'));
+    if (Math.abs(result - 0.1) < 0.001) {
+      setOutput('fb-ex8', '✓ Correct!\n\nSample: [1,1,0,1,0] (n=5, p̂=0.6)\nmargin = 1/√5 = ' + (1/Math.sqrt(5)).toFixed(4) + '\nlower  = max(0, 0.6 - ' + (1/Math.sqrt(5)).toFixed(4) + ') = ' + Math.max(0, 0.6-1/Math.sqrt(5)).toFixed(4) + '\nupper  = min(1, 0.6 + ' + (1/Math.sqrt(5)).toFixed(4) + ') = ' + Math.min(1, 0.6+1/Math.sqrt(5)).toFixed(4));
+      runSimUCB();
+    } else {
+      setFeedback('fb-ex8', false, 'Got ' + result + ' for n=100. Expected 0.1. Try: 1.0 / n ** 0.5');
+    }
+  } catch(e) {
+    setFeedback('fb-ex8', false, 'Error: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// SIMULATION 1 — CONVERGENCE CHART
+// ═══════════════════════════════════════════════════
+function updateSim1() {
+  const nw = document.getElementById('sl-nwhite');
+  const nt = document.getElementById('sl-ntrials');
+  const mn = document.getElementById('sl-maxn');
+  if (!nw || !nt || !mn) return;
+  document.getElementById('lbl-nwhite').textContent  = nw.value;
+  document.getElementById('lbl-ntrials').textContent = nt.value;
+  document.getElementById('lbl-maxn').textContent    = mn.value;
+}
+
+function runSim1() {
+  if (!document.getElementById('sl-nwhite')) return;
+  updateSim1();
+  const nWhite  = parseInt(document.getElementById('sl-nwhite').value);
+  const nTrials = parseInt(document.getElementById('sl-ntrials').value);
+  const maxN    = parseInt(document.getElementById('sl-maxn').value);
+  const nOrange = 100 - nWhite;
+  const trueP   = nWhite / 100;
+  const urn     = createUrn(nOrange, nWhite);
+
+  const nPoints = 60;
+  const sizes = [];
+  for (let i = 0; i < nPoints; i++) {
+    sizes.push(Math.max(1, Math.round(1 + (maxN - 1) * i / (nPoints - 1))));
+  }
+
+  const allEstimates = sizes.map(s => {
+    const row = [];
+    for (let t = 0; t < nTrials; t++) row.push(frequentistEstimation(drawFromUrn(urn, s)));
+    return row;
+  });
+  const means = allEstimates.map(r => r.reduce((a,b) => a+b, 0) / r.length);
+
+  drawConvergenceChart(sizes, allEstimates, means, trueP, nTrials, maxN);
+
+  // Fill table
+  const tableSizes = [10, 50, 100, 500, 1000].filter(s => s <= maxN);
+  const tbody = document.getElementById('tbl-game1-body');
+  tbody.innerHTML = '';
+  tableSizes.forEach(s => {
+    const samp     = drawFromUrn(urn, s);
+    const est      = frequentistEstimation(samp);
+    const [lo, hi] = computeCI(samp);
+    const err      = Math.abs(est - trueP);
+    const contains = trueP >= lo && trueP <= hi;
+    tbody.innerHTML += `<tr>
+      <td>${s}</td><td>${est.toFixed(4)}</td><td>${trueP.toFixed(4)}</td>
+      <td>${err.toFixed(4)}</td>
+      <td class="${contains?'td-check':'td-cross'}">${contains?'✓':'✗'}</td>
+    </tr>`;
+  });
+}
+
+function drawConvergenceChart(sizes, allEst, means, trueP, nTrials, maxN) {
+  const W = 620, H = 260;
+  const pad = {top: 28, right: 28, bottom: 44, left: 52};
+  const iW = W - pad.left - pad.right;
+  const iH = H - pad.top  - pad.bottom;
+
+  function tx(x) { return pad.left + (x / maxN) * iW; }
+  function ty(y) { return pad.top  + iH - y * iH; }  // y in [0,1]
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto">`;
+
+  // Background
+  svg += `<rect width="${W}" height="${H}" fill="#f0e6d3" rx="8"/>`;
+
+  // Grid
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.top + iH * i / 5;
+    const val = (1 - i/5).toFixed(1);
+    svg += `<line x1="${pad.left}" y1="${y}" x2="${pad.left+iW}" y2="${y}" stroke="rgba(44,36,22,0.08)" stroke-width="1"/>`;
+    svg += `<text x="${pad.left-8}" y="${y+4}" text-anchor="end" font-size="11" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${val}</text>`;
+  }
+  const xTicks = 5;
+  for (let i = 0; i <= xTicks; i++) {
+    const xVal = Math.round(maxN * i / xTicks);
+    const x = tx(xVal);
+    svg += `<line x1="${x}" y1="${pad.top}" x2="${x}" y2="${pad.top+iH}" stroke="rgba(44,36,22,0.08)" stroke-width="1"/>`;
+    svg += `<text x="${x}" y="${pad.top+iH+16}" text-anchor="middle" font-size="11" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${xVal}</text>`;
+  }
+
+  // Axes
+  svg += `<line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top+iH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  svg += `<line x1="${pad.left}" y1="${pad.top+iH}" x2="${pad.left+iW}" y2="${pad.top+iH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+
+  // Axis label
+  svg += `<text x="${pad.left+iW/2}" y="${H-4}" text-anchor="middle" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.45)">Sample size</text>`;
+
+  // Individual trial lines
+  for (let t = 0; t < nTrials; t++) {
+    const pts = sizes.map(s => tx(s) + ',' + ty(allEst[sizes.indexOf(s)][t])).join(' ');
+    const points = sizes.map((s, si) => `${tx(s)},${ty(allEst[si][t])}`).join(' ');
+    svg += `<polyline points="${points}" fill="none" stroke="rgba(193,127,78,0.22)" stroke-width="1" stroke-linejoin="round"/>`;
+  }
+
+  // Mean line
+  const meanPts = sizes.map((s, si) => `${tx(s)},${ty(means[si])}`).join(' ');
+  svg += `<polyline points="${meanPts}" fill="none" stroke="#a0623a" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  // True probability line
+  svg += `<line x1="${tx(0)}" y1="${ty(trueP)}" x2="${tx(maxN)}" y2="${ty(trueP)}" stroke="#c0392b" stroke-width="2" stroke-dasharray="6,4"/>`;
+
+  // Legend
+  const lx = pad.left + 10, ly = pad.top + 14;
+  svg += `<line x1="${lx}" y1="${ly}" x2="${lx+20}" y2="${ly}" stroke="#a0623a" stroke-width="2.5"/>`;
+  svg += `<text x="${lx+26}" y="${ly+4}" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.75)">Mean estimate</text>`;
+  svg += `<line x1="${lx+155}" y1="${ly}" x2="${lx+175}" y2="${ly}" stroke="#c0392b" stroke-width="2" stroke-dasharray="6,4"/>`;
+  svg += `<text x="${lx+181}" y="${ly+4}" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.75)">True P = ${trueP.toFixed(2)}</text>`;
+
+  svg += `</svg>`;
+  document.getElementById('chart-convergence-wrap').innerHTML = svg;
+}
+
+// ═══════════════════════════════════════════════════
+// SIMULATION 2 — CI CHART
+// ═══════════════════════════════════════════════════
+function updateSim2() {
+  const tp = document.getElementById('sl-trueprob');
+  const mn = document.getElementById('sl-maxn2');
+  if (!tp || !mn) return;
+  document.getElementById('lbl-trueprob').textContent = (parseInt(tp.value) / 100).toFixed(2);
+  document.getElementById('lbl-maxn2').textContent    = mn.value;
+}
+
+function runSim2() {
+  if (!document.getElementById('sl-trueprob')) return;
+  updateSim2();
+  const trueP = parseInt(document.getElementById('sl-trueprob').value) / 100;
+  const maxN  = parseInt(document.getElementById('sl-maxn2').value);
+  const nOrange = Math.round((1 - trueP) * 100), nWhite = Math.round(trueP * 100);
+  const urn = createUrn(nOrange, nWhite);
+
+  const nPoints = 60, nTrials = 20;
+  const sizes = [];
+  for (let i = 0; i < nPoints; i++) {
+    sizes.push(Math.max(1, Math.round(1 + (maxN - 1) * i / (nPoints - 1))));
+  }
+
+  const allLower = [], allUpper = [], allEst = [];
+  sizes.forEach(s => {
+    const lo_row = [], hi_row = [], est_row = [];
+    for (let t = 0; t < nTrials; t++) {
+      const samp = drawFromUrn(urn, s);
+      const [lo, hi] = computeCI(samp);
+      lo_row.push(lo); hi_row.push(hi);
+      est_row.push(frequentistEstimation(samp));
+    }
+    allLower.push(lo_row); allUpper.push(hi_row); allEst.push(est_row);
+  });
+
+  const meanLower = allLower.map(r => r.reduce((a,b) => a+b, 0) / r.length);
+  const meanUpper = allUpper.map(r => r.reduce((a,b) => a+b, 0) / r.length);
+  const means     = allEst.map(r   => r.reduce((a,b) => a+b, 0) / r.length);
+
+  drawCIChart(sizes, means, meanLower, meanUpper, trueP, maxN);
+
+  // Table
+  const tableSizes = [10, 25, 50, 100, 250, 500, 1000].filter(s => s <= maxN);
+  const tbody = document.getElementById('tbl-game2-body');
+  tbody.innerHTML = '';
+  tableSizes.forEach(s => {
+    const samp = drawFromUrn(urn, s);
+    const est  = frequentistEstimation(samp);
+    const [lo, hi] = computeCI(samp);
+    const w = hi - lo;
+    const contains = trueP >= lo && trueP <= hi;
+    tbody.innerHTML += `<tr>
+      <td>${s}</td><td>${est.toFixed(4)}</td><td>${lo.toFixed(4)}</td>
+      <td>${hi.toFixed(4)}</td><td>${w.toFixed(4)}</td>
+      <td class="${contains?'td-check':'td-cross'}">${contains?'✓':'✗'}</td>
+    </tr>`;
+  });
+}
+
+function drawCIChart(sizes, means, lower, upper, trueP, maxN) {
+  const W = 620, H = 260;
+  const pad = {top: 28, right: 28, bottom: 44, left: 52};
+  const iW = W - pad.left - pad.right;
+  const iH = H - pad.top  - pad.bottom;
+
+  function tx(x) { return pad.left + (x / maxN) * iW; }
+  function ty(y) { return pad.top  + iH - y * iH; }
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto">`;
+
+  // Background
+  svg += `<rect width="${W}" height="${H}" fill="#f0e6d3" rx="8"/>`;
+
+  // Grid
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.top + iH * i / 5;
+    const val = (1 - i/5).toFixed(1);
+    svg += `<line x1="${pad.left}" y1="${y}" x2="${pad.left+iW}" y2="${y}" stroke="rgba(44,36,22,0.08)" stroke-width="1"/>`;
+    svg += `<text x="${pad.left-8}" y="${y+4}" text-anchor="end" font-size="11" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${val}</text>`;
+  }
+  for (let i = 0; i <= 5; i++) {
+    const xVal = Math.round(maxN * i / 5);
+    const x = tx(xVal);
+    svg += `<line x1="${x}" y1="${pad.top}" x2="${x}" y2="${pad.top+iH}" stroke="rgba(44,36,22,0.08)" stroke-width="1"/>`;
+    svg += `<text x="${x}" y="${pad.top+iH+16}" text-anchor="middle" font-size="11" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${xVal}</text>`;
+  }
+
+  // Axes
+  svg += `<line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top+iH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  svg += `<line x1="${pad.left}" y1="${pad.top+iH}" x2="${pad.left+iW}" y2="${pad.top+iH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  svg += `<text x="${pad.left+iW/2}" y="${H-4}" text-anchor="middle" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.45)">Sample size</text>`;
+
+  // CI band (upper path forward, lower path backward = filled polygon)
+  const upperPts = sizes.map((s, i) => `${tx(s)},${ty(upper[i])}`).join(' ');
+  const lowerPts = sizes.slice().reverse().map((s, i) => `${tx(s)},${ty(lower[sizes.length-1-i])}`).join(' ');
+  svg += `<polygon points="${upperPts} ${lowerPts}" fill="rgba(193,127,78,0.18)" stroke="none"/>`;
+
+  // Mean line
+  const meanPts = sizes.map((s, i) => `${tx(s)},${ty(means[i])}`).join(' ');
+  svg += `<polyline points="${meanPts}" fill="none" stroke="#a0623a" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  // True probability line
+  svg += `<line x1="${tx(0)}" y1="${ty(trueP)}" x2="${tx(maxN)}" y2="${ty(trueP)}" stroke="#c0392b" stroke-width="2" stroke-dasharray="6,4"/>`;
+
+  // Legend
+  const lx = pad.left + 10, ly = pad.top + 14;
+  svg += `<rect x="${lx}" y="${ly-5}" width="20" height="10" fill="rgba(193,127,78,0.25)" stroke="rgba(193,127,78,0.5)" stroke-width="1"/>`;
+  svg += `<text x="${lx+26}" y="${ly+4}" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.75)">Mean CI band</text>`;
+  svg += `<line x1="${lx+135}" y1="${ly}" x2="${lx+155}" y2="${ly}" stroke="#a0623a" stroke-width="2.5"/>`;
+  svg += `<text x="${lx+161}" y="${ly+4}" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.75)">Mean estimate</text>`;
+  svg += `<line x1="${lx+295}" y1="${ly}" x2="${lx+315}" y2="${ly}" stroke="#c0392b" stroke-width="2" stroke-dasharray="6,4"/>`;
+  svg += `<text x="${lx+321}" y="${ly+4}" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.75)">True P = ${trueP.toFixed(2)}</text>`;
+
+  svg += `</svg>`;
+  document.getElementById('chart-ci-wrap').innerHTML = svg;
+}
+
+// ═══════════════════════════════════════════════════
+// GAME 3 — ESTIMATE-THEN-EXPLOIT
+// ═══════════════════════════════════════════════════
+function updateGame3UI() {
+  const n = parseInt(document.getElementById('sl-n').value);
+  const budget = 200, cost = n * 2, exploit = budget - cost;
+  document.getElementById('g3-n-display').textContent = n;
+  document.getElementById('g3-est-cost').textContent = cost + ' shows';
+  document.getElementById('g3-exploit-budget').textContent = exploit + ' shows';
+  const exploreW = (cost / budget * 100) + '%';
+  document.getElementById('g3-bar-explore').style.width = exploreW;
+}
+
+function runGame3() {
+  const n = parseInt(document.getElementById('sl-n').value);
+  const BUDGET = 200;
+  const TRUE_A = 0.3, TRUE_B = 0.7;
+
+  // Estimation phase
+  let clicks_A = 0, clicks_B = 0;
+  for (let i = 0; i < n; i++) { if (showAd(TRUE_A)) clicks_A++; }
+  for (let i = 0; i < n; i++) { if (showAd(TRUE_B)) clicks_B++; }
+
+  const estA = clicks_A / n;
+  const estB = clicks_B / n;
+  const chosenProb = estA > estB ? TRUE_A : (estB > estA ? TRUE_B : TRUE_A);
+  const chosenName = estA > estB ? 'Ad A' : (estB > estA ? 'Ad B' : 'Ad A (tie)');
+  const pickedBest = chosenProb === TRUE_B;
+
+  const exploitBudget = BUDGET - 2 * n;
+  let clicks_exploit = 0;
+  for (let i = 0; i < exploitBudget; i++) { if (showAd(chosenProb)) clicks_exploit++; }
+
+  const total = clicks_A + clicks_B + clicks_exploit;
+  const optimal = Math.round(TRUE_B * BUDGET);
+
+  const el = document.getElementById('g3-result');
+  el.style.display = 'block';
+  const body = document.getElementById('g3-result-body');
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="text-align:center;padding:12px;background:rgba(106,143,115,0.08);border-radius:10px">
+        <div style="font-size:11px;color:var(--sage);text-transform:uppercase;letter-spacing:.06em">Est. Ad A</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;color:var(--ink)">${clicks_A} clicks</div>
+        <div style="font-size:12px;color:var(--ink-muted)">p̂ = ${estA.toFixed(2)}</div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(106,143,115,0.08);border-radius:10px">
+        <div style="font-size:11px;color:var(--sage);text-transform:uppercase;letter-spacing:.06em">Est. Ad B</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;color:var(--ink)">${clicks_B} clicks</div>
+        <div style="font-size:12px;color:var(--ink-muted)">p̂ = ${estB.toFixed(2)}</div>
+      </div>
+      <div style="text-align:center;padding:12px;background:rgba(193,127,78,0.08);border-radius:10px;border:1px solid rgba(193,127,78,0.2)">
+        <div style="font-size:11px;color:var(--terra);text-transform:uppercase;letter-spacing:.06em">Exploit ${chosenName}</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:18px;font-weight:700;color:var(--ink)">${clicks_exploit} clicks</div>
+        <div style="font-size:12px;color:var(--ink-muted)">${exploitBudget} shows</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div class="score-display">🎉 ${total} total clicks</div>
+      <div style="font-size:13px;color:var(--ink-muted)">
+        Optimal: ~${optimal} | Efficiency: ${(total/optimal*100).toFixed(0)}%
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:12px;border-radius:10px;background:${pickedBest?'rgba(74,144,85,0.08)':'rgba(192,57,43,0.07)'};border:1px solid ${pickedBest?'rgba(74,144,85,0.25)':'rgba(192,57,43,0.2)'}">
+      <p style="font-size:13px;color:${pickedBest?'#2d6b38':'#8b2a1f'};margin:0">
+        ${pickedBest
+          ? '🥳 You correctly identified Ad B as better! The estimation phase worked.'
+          : '😬 The estimation phase was unlucky and picked the wrong ad. This is the risk of small n!'}
+        <br><small style="opacity:.8">True rates: Ad A = 30%, Ad B = 70%.</small>
+      </p>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+// UCB INTERACTIVE GAME
+// ═══════════════════════════════════════════════════
+let ucbState = {};
+
+function ucbReset() {
+  const compositions = [
+    {white:80,orange:20},{white:50,orange:50},{white:20,orange:80}
+  ].sort(() => Math.random()-0.5);
+
+  ucbState = {
+    urns: compositions,
+    samples: [[],[],[]],
+    n: 0,
+    score: 0,
+    revealed: false
+  };
+  ucbRender();
+  document.getElementById('ucb-status').textContent = 'Click any urn to draw! You can only draw from the urn with the highest UCB.';
+}
+
+function ucbGetBestIndexes() {
+  const ucbs = ucbState.samples.map(s => computeUCB(s));
+  const maxU = Math.max(...ucbs);
+  return ucbs.map((u,i) => Math.abs(u-maxU)<0.0001 ? i : -1).filter(i=>i>=1||i===0);
+}
+
+function ucbDraw(idx) {
+  const best = ucbGetBestIndexes();
+  if (!best.includes(idx)) {
+    document.getElementById('ucb-status').textContent =
+      `❌ Urn ${idx+1} doesn't have the highest UCB. Choose from Urn(s) ${best.map(i=>i+1).join(', ')}.`;
+    return;
+  }
+  const urn = ucbState.urns[idx];
+  const total = urn.white + urn.orange;
+  const ball = Math.random() * total < urn.white ? 1 : 0;
+  ucbState.samples[idx].push(ball);
+  ucbState.n++;
+  if (ball===1) ucbState.score++;
+
+  const color = ball===1 ? 'white' : 'orange';
+  document.getElementById('ucb-status').textContent =
+    `Drew a ${color.toUpperCase()} ball from Urn ${idx+1}. ${ball?'✓ Reward!':'✗ No reward.'} (Total: ${ucbState.n} draws)`;
+  ucbRender();
+}
+
+function ucbRender() {
+  const bestIdxs = ucbGetBestIndexes();
+  document.getElementById('ucb-n').textContent = ucbState.n;
+  document.getElementById('ucb-score').textContent = ucbState.score;
+
+  // Figure best urn label
+  if (ucbState.revealed) {
+    const trueBest = ucbState.urns.reduce((bi,u,i)=>u.white>ucbState.urns[bi].white?i:bi,0);
+    document.getElementById('ucb-best-label').textContent = `Urn ${trueBest+1} (${ucbState.urns[trueBest].white}% white)`;
+  } else {
+    document.getElementById('ucb-best-label').textContent = '?';
+  }
+
+  const container = document.getElementById('ucb-urns-container');
+  container.innerHTML = '';
+
+  ucbState.urns.forEach((urn, i) => {
+    const samp = ucbState.samples[i];
+    const [lo, hi] = computeCI(samp);
+    const p = frequentistEstimation(samp);
+    const isBest = bestIdxs.includes(i);
+    const fillW = ((hi - lo) * 100).toFixed(1);
+    const fillL = (lo * 100).toFixed(1);
+
+    const div = document.createElement('div');
+    div.className = 'ucb-urn' + (isBest ? ' best-ucb' : ' locked');
+    div.onclick = () => ucbDraw(i);
+
+    const composition = ucbState.revealed
+      ? `${urn.white}W / ${urn.orange}O` : 'Hidden';
+
+    div.innerHTML = `
+      <div class="ucb-urn-title">Urn ${i+1}${isBest ? ' ★' : ''}</div>
+      <div class="ucb-urn-upper">${hi.toFixed(3)}</div>
+      <div class="ucb-ci-track"><div class="ucb-ci-bar" style="width:${fillW}%;margin-left:${fillL}%"></div></div>
+      <div class="ucb-urn-bounds">[${lo.toFixed(3)}, ${hi.toFixed(3)}]</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">
+        n=${samp.length} · p̂=${samp.length?p.toFixed(2):'—'}<br>${composition}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function ucbAutoPlay() {
+  for (let i = 0; i < 10; i++) {
+    const best = ucbGetBestIndexes();
+    ucbDraw(best[Math.floor(Math.random()*best.length)]);
+    await new Promise(r => setTimeout(r, 350));
+  }
+}
+
+function ucbReveal() {
+  ucbState.revealed = !ucbState.revealed;
+  ucbRender();
+  if (ucbState.revealed) {
+    const trueBest = ucbState.urns.reduce((bi,u,i)=>u.white>ucbState.urns[bi].white?i:bi,0);
+    document.getElementById('ucb-status').textContent =
+      `Compositions revealed! True best is Urn ${trueBest+1} (${ucbState.urns[trueBest].white}% white).`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UCB vs EPSILON CHART
+// ═══════════════════════════════════════════════════
+function epsilonGreedy(urns, nDraws, eps) {
+  const n = urns.length;
+  const samples = urns.map(() => []);
+  let total = 0;
+  const rewards = [];
+
+  for (let t = 0; t < nDraws; t++) {
+    let idx;
+    if (t < n) {
+      // Force one draw from each urn first
+      idx = t;
+    } else if (Math.random() < eps) {
+      idx = Math.floor(Math.random() * n);
+    } else {
+      let best = -1, bestP = -1;
+      samples.forEach((s, i) => {
+        const p = frequentistEstimation(s);
+        if (p > bestP) { bestP = p; best = i; }
+      });
+      idx = best;
+    }
+    const ball = randChoice(urns[idx]);
+    samples[idx].push(ball);
+    total += ball;
+    rewards.push(total);
+  }
+  return rewards;
+}
+
+function protoUCB(urns, nDraws) {
+  const samples = urns.map(() => []);
+  let total = 0;
+  const rewards = [];
+
+  for (let t = 0; t < nDraws; t++) {
+    let bestU = -1, bestIdx = 0;
+    samples.forEach((s,i) => {
+      const u = computeUCB(s);
+      if (u > bestU) { bestU=u; bestIdx=i; }
+    });
+    const ball = randChoice(urns[bestIdx]);
+    samples[bestIdx].push(ball);
+    total += ball;
+    rewards.push(total);
+  }
+  return rewards;
+}
+
+function runSimUCB() {
+  if (!document.getElementById('sl-ndraws')) return;
+  const nDraws  = parseInt(document.getElementById('sl-ndraws').value);
+  const nTrials = parseInt(document.getElementById('sl-ucbtrials').value);
+  const urns = [createUrn(30,70), createUrn(60,40)];
+  const bestP = 0.7;
+  const optimal = Array.from({length: nDraws}, (_,i) => bestP * (i+1));
+
+  const epsilons = [0.05, 0.15, 0.3];
+  const colors   = ['#e63946', '#f4a261', '#457b9d'];
+
+  const results = {};
+  epsilons.forEach((eps, ei) => {
+    const all = [];
+    for (let t = 0; t < nTrials; t++) all.push(epsilonGreedy(urns, nDraws, eps));
+    results[`ε=${eps}`] = {data: all, color: colors[ei]};
+  });
+  const ucbAll = [];
+  for (let t = 0; t < nTrials; t++) ucbAll.push(protoUCB(urns, nDraws));
+  results['Proto-UCB'] = {data: ucbAll, color: '#2d9e5f'};
+
+  drawUCBChart(nDraws, results, optimal);
+}
+
+function drawUCBChart(nDraws, results, optimal) {
+  const W = 620, H = 600;
+  const pad = {top: 28, right: 28, bottom: 24, left: 52};
+  const iW = W - pad.left - pad.right;
+
+  // Split into reward panel (top 60%) and regret panel (bottom 35%), gap 12
+  const rewardH = Math.round((H - pad.top - pad.bottom) * 0.72);
+  const gap = 12;
+  const regretH = H - pad.top - pad.bottom - rewardH - gap;
+
+  const rewardTop  = pad.top;
+  const regretTop  = pad.top + rewardH + gap;
+
+  const yMaxReward = optimal[optimal.length - 1] * 1.05;
+
+  // Compute means and regret max up front
+  const means = {};
+  Object.entries(results).forEach(([label, {data}]) => {
+    const nT = data.length;
+    means[label] = Array.from({length: nDraws}, (_, i) =>
+      data.reduce((s, r) => s + (r[i] || 0), 0) / nT
+    );
+  });
+  let regretMax = 1;
+  Object.values(means).forEach(m => {
+    for (let i = 0; i < nDraws; i++) {
+      const r = optimal[i] - m[i];
+      if (isFinite(r) && r > regretMax) regretMax = r;
+    }
+  });
+
+  function tx(i)       { return pad.left + (i / (nDraws - 1)) * iW; }
+  function tyR(v)      { return rewardTop + rewardH - (v / yMaxReward) * rewardH; }
+  function tyReg(v)    { return regretTop + regretH - (v / regretMax) * regretH; }
+  function pts(arr, tyFn) { return arr.map((v,i) => `${tx(i)},${tyFn(v)}`).join(' '); }
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto">`;
+  svg += `<rect width="${W}" height="${H}" fill="#f0e6d3" rx="8"/>`;
+
+  // ── Reward panel ──
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = rewardTop + rewardH * i / 4;
+    const v = Math.round(yMaxReward * (1 - i/4));
+    svg += `<line x1="${pad.left}" y1="${y}" x2="${pad.left+iW}" y2="${y}" stroke="rgba(44,36,22,0.08)" stroke-width="1"/>`;
+    svg += `<text x="${pad.left-6}" y="${y+4}" text-anchor="end" font-size="10" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${v}</text>`;
+  }
+  for (let i = 0; i <= 4; i++) {
+    const xi = Math.round((nDraws-1) * i / 4);
+    const x = tx(xi);
+    svg += `<line x1="${x}" y1="${rewardTop}" x2="${x}" y2="${rewardTop+rewardH}" stroke="rgba(44,36,22,0.06)" stroke-width="1"/>`;
+  }
+  // Axes
+  svg += `<line x1="${pad.left}" y1="${rewardTop}" x2="${pad.left}" y2="${rewardTop+rewardH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  svg += `<line x1="${pad.left}" y1="${rewardTop+rewardH}" x2="${pad.left+iW}" y2="${rewardTop+rewardH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  // Y label
+  svg += `<text x="12" y="${rewardTop + rewardH/2}" text-anchor="middle" font-size="10" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.45)" transform="rotate(-90,12,${rewardTop+rewardH/2})">Cumulative reward</text>`;
+
+  // Optimal line
+  svg += `<polyline points="${pts(optimal, tyR)}" fill="none" stroke="rgba(192,57,43,0.7)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+
+  // Algorithm lines
+  Object.entries(means).forEach(([label, mean]) => {
+    const color = results[label].color;
+    svg += `<polyline points="${pts(mean, tyR)}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;
+  });
+
+  // ── Regret panel ──
+  svg += `<defs><clipPath id="regret-clip"><rect x="${pad.left}" y="${regretTop}" width="${iW}" height="${regretH}"/></clipPath></defs>`;
+  svg += `<rect x="${pad.left}" y="${regretTop}" width="${iW}" height="${regretH}" fill="rgba(44,36,22,0.03)" rx="4"/>`;
+  for (let i = 0; i <= 2; i++) {
+    const y = regretTop + regretH * i / 2;
+    const v = Math.round(regretMax * (1 - i/2));
+    svg += `<line x1="${pad.left}" y1="${y}" x2="${pad.left+iW}" y2="${y}" stroke="rgba(44,36,22,0.08)" stroke-width="1"/>`;
+    svg += `<text x="${pad.left-6}" y="${y+4}" text-anchor="end" font-size="10" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${v}</text>`;
+  }
+  svg += `<line x1="${pad.left}" y1="${regretTop}" x2="${pad.left}" y2="${regretTop+regretH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  svg += `<line x1="${pad.left}" y1="${regretTop+regretH}" x2="${pad.left+iW}" y2="${regretTop+regretH}" stroke="rgba(44,36,22,0.25)" stroke-width="1.5"/>`;
+  svg += `<text x="12" y="${regretTop + regretH/2}" text-anchor="middle" font-size="10" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.45)" transform="rotate(-90,12,${regretTop+regretH/2})">Regret</text>`;
+  Object.entries(means).forEach(([label, mean]) => {
+    const color = results[label].color;
+    const regretPts = optimal.map((o, i) => {
+      const r = Math.max(0, o - mean[i]);
+      return `${tx(i)},${tyReg(r)}`;
+    }).join(' ');
+    svg += `<polyline points="${regretPts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" clip-path="url(#regret-clip)"/>`;
+  });
+
+  // X labels (shared, below regret panel)
+  for (let i = 0; i <= 4; i++) {
+    const xi = Math.round((nDraws-1) * i / 4);
+    svg += `<text x="${tx(xi)}" y="${regretTop+regretH+14}" text-anchor="middle" font-size="10" font-family="'Courier New',Courier,monospace" fill="rgba(44,36,22,0.5)">${xi}</text>`;
+  }
+  svg += `<text x="${pad.left+iW/2}" y="${H-4}" text-anchor="middle" font-size="10" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.4)">Number of draws</text>`;
+
+  // ── Legend ──
+  const legendEntries = [['Optimal', 'rgba(192,57,43,0.7)', true], ...Object.entries(results).map(([l,{color}]) => [l, color, false])];
+  let lx = pad.left, ly = rewardTop + 14;
+  legendEntries.forEach(([label, color, dashed]) => {
+    const dash = dashed ? ' stroke-dasharray="5,4"' : '';
+    svg += `<line x1="${lx}" y1="${ly}" x2="${lx+18}" y2="${ly}" stroke="${color}" stroke-width="${dashed?1.5:2}"${dash}/>`;
+    svg += `<text x="${lx+23}" y="${ly+4}" font-size="11" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" fill="rgba(44,36,22,0.75)">${label}</text>`;
+    lx += 23 + label.length * 7 + 16;
+    if (lx > W - 80) { lx = pad.left; ly += 16; }
+  });
+
+  svg += `</svg>`;
+  document.getElementById('chart-ucb-wrap').innerHTML = svg;
+}
+
+// ═══════════════════════════════════════════════════
+// CHART DRAWING
+// ═══════════════════════════════════════════════════
+function logspace(lo, hi, n) {
+  const out = [];
+  for (let i=0;i<n;i++) {
+    out.push(Math.round(Math.pow(10, lo + (hi-lo)*i/(n-1))));
+  }
+  return [...new Set(out)];
+}
+
+function setupCanvas(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  // Use the fixed width/height attributes on the canvas element.
+  // Do NOT measure from DOM — that's what caused the growth loop.
+  const w = parseInt(canvas.getAttribute('width'));
+  const h = parseInt(canvas.getAttribute('height'));
+  // Set the buffer at HiDPI resolution, CSS display size stays at attribute px
+  canvas.width  = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return {ctx, w, h};
+}
+
+function drawAxes(ctx, w, h, pad, yMin, yMax, xMin, xMax, isLog) {
+  ctx.strokeStyle = 'rgba(44,36,22,0.12)';
+  ctx.lineWidth = 1;
+  // grid
+  for (let i=0;i<=4;i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i/4;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
+    const val = yMax - (yMax-yMin)*i/4;
+    ctx.fillStyle = 'rgba(44,36,22,0.45)';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(2), pad.left-6, y+3);
+  }
+  ctx.strokeStyle = 'rgba(44,36,22,0.2)';
+  ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, h-pad.bottom); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.left, h-pad.bottom); ctx.lineTo(w-pad.right, h-pad.bottom); ctx.stroke();
+}
+
+function toXY(x, y, w, h, pad, xVals, yMin, yMax, isLog) {
+  const xFrac = isLog
+    ? (Math.log10(x) - Math.log10(xVals[0])) / (Math.log10(xVals[xVals.length-1]) - Math.log10(xVals[0]))
+    : (x - xVals[0]) / (xVals[xVals.length-1] - xVals[0]);
+  const yFrac = (y - yMin) / (yMax - yMin);
+  return [
+    pad.left + xFrac * (w - pad.left - pad.right),
+    h - pad.bottom - yFrac * (h - pad.top - pad.bottom)
+  ];
+}
+
+
+
+
+
+
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  updateGame3UI();
+  ucbReset();
+});
+
+window.addEventListener('resize', () => {});
+</script>
+</body>
+</html>
