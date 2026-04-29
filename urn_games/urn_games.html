@@ -1122,7 +1122,35 @@
     </div>
   </div>
 
-  <div class="vis-lock" id="g3-lock">Solve both exercises above to unlock the game.</div>
+  <h2 class="section-title">Exercise 3 · pick_best_ad()</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        game3.py · pick_best_ad()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Given the estimates for both ads, pick the higher one to exploit.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">pick_best_ad</span>(<span class="var">estimate_A</span>, <span class="var">estimate_B</span>):</div>
+        <div class="code-line">    <span class="var">estimates</span> <span class="op">=</span> [<span class="var">estimate_A</span>, <span class="var">estimate_B</span>]</div>
+        <div class="code-line editable-line"><span class="var">    best </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex6b-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="kw">return</span> <span class="var">best</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx6b()">▶ Check</button>
+        <button class="btn btn-hint" onclick="toggleHint('hint6b')">💡 Hint</button>
+      </div>
+      <div id="hint6b" style="display:none" class="info-box"><p>You want the highest value in the list: <code>max(estimates)</code>.</p></div>
+      <div class="feedback" id="fb-ex6b"></div>
+    </div>
+  </div>
+
+  <div class="vis-lock" id="g3-lock">Solve all three exercises above to unlock the game.</div>
   <div id="g3-vis" style="display:none">
   <h2 class="section-title">Play It</h2>
   <p class="prose">Drag the slider to pick your <strong>n</strong> — how long you'll test before committing. Then run it and see what happens.</p>
@@ -1446,7 +1474,7 @@ function resetEx(inputId, val, fbId) {
 // VIS UNLOCK
 // ═══════════════════════════════════════════════════
 const solved = {};
-const prereqs = { 1: ['ex1','ex2','ex3'], 2: ['ex4'], 3: ['ex5','ex6'], 4: ['ex7','ex8','ex9'] };
+const prereqs = { 1: ['ex1','ex2','ex3'], 2: ['ex4'], 3: ['ex5','ex6','ex6b'], 4: ['ex7','ex8','ex9'] };
 
 function tryUnlock(game) {
   if (!prereqs[game].every(k => solved[k])) return;
@@ -1636,6 +1664,24 @@ function checkEx6() {
   } catch(e) {
     setFeedback('fb-ex6', false, 'Error: ' + e.message);
   }
+}
+
+// Ex 6b — pick_best_ad
+function checkEx6b() {
+  const val = document.getElementById('ex6b-input').value.trim();
+  if (!val) { setFeedback('fb-ex6b', false, 'Please enter your answer first.'); return; }
+  const hasMax       = val.includes('max');
+  const hasEstimates = val.includes('estimates');
+  if (!hasMax) {
+    setFeedback('fb-ex6b', false, 'Pick the highest value from the list: max(estimates)');
+    return;
+  }
+  if (!hasEstimates) {
+    setFeedback('fb-ex6b', false, 'Pass the estimates list: max(estimates)');
+    return;
+  }
+  setOutput('fb-ex6b', '✓ Correct!\n\nExample: estimates = [0.3, 0.7]\nbest = 0.7  ← go all-in on this one');
+  solved.ex6b = true; tryUnlock(3);
 }
 
 // Ex 7 — draw_from_urn_ucb
