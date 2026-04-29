@@ -1280,7 +1280,38 @@
     </div>
   </div>
 
-  <div class="vis-lock" id="g4-lock">Solve both exercises above to unlock the demo.</div>
+  <h2 class="section-title">Exercise 3 · pick_urn_ucb()</h2>
+
+  <div class="exercise-block">
+    <div class="exercise-header">
+      <div class="exercise-title">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        game4.py · pick_urn_ucb()
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-instructions">
+        Each urn's upper confidence bound is already collected. Pick the urn with the highest one.
+      </div>
+      <div class="code-area">
+        <div class="code-line"><span class="kw">def</span> <span class="fn">pick_urn_ucb</span>(<span class="var">samples</span>):</div>
+        <div class="code-line">    <span class="var">ucbs</span> <span class="op">=</span> []</div>
+        <div class="code-line">    <span class="kw">for</span> <span class="var">s</span> <span class="kw">in</span> <span class="var">samples</span>:</div>
+        <div class="code-line">        <span class="var">ucbs</span>.<span class="fn">append</span>(<span class="fn">compute_ucb</span>(<span class="var">s</span>))</div>
+        <div class="code-line editable-line"><span class="var">    best_ucb </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex9b-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="var">best_idx</span> <span class="op">=</span> <span class="var">ucbs</span>.<span class="fn">index</span>(<span class="var">best_ucb</span>)</div>
+        <div class="code-line">    <span class="kw">return</span> <span class="var">best_idx</span></div>
+      </div>
+      <div class="code-actions">
+        <button class="btn btn-primary" onclick="checkEx9()">▶ Run &amp; Check</button>
+        <button class="btn btn-hint" onclick="toggleHint('hint9')">💡 Hint</button>
+      </div>
+      <div id="hint9" style="display:none" class="info-box"><p>You want the highest value in the <code>ucbs</code> list: <code>max(ucbs)</code>.</p></div>
+      <div class="feedback" id="fb-ex9"></div>
+    </div>
+  </div>
+
+  <div class="vis-lock" id="g4-lock">Solve all three exercises above to unlock the demo.</div>
   <div id="g4-vis" style="display:none">
   <h2 class="section-title">Play It</h2>
   <p class="prose">Three urns, hidden mixes. The highlighted one has the highest upper bound — that's the algorithm's choice. Click it to draw, or let Auto-Play run ahead. Which urn wins?</p>
@@ -1415,7 +1446,7 @@ function resetEx(inputId, val, fbId) {
 // VIS UNLOCK
 // ═══════════════════════════════════════════════════
 const solved = {};
-const prereqs = { 1: ['ex1','ex2','ex3'], 2: ['ex4'], 3: ['ex5','ex6'], 4: ['ex7','ex8'] };
+const prereqs = { 1: ['ex1','ex2','ex3'], 2: ['ex4'], 3: ['ex5','ex6'], 4: ['ex7','ex8','ex9'] };
 
 function tryUnlock(game) {
   if (!prereqs[game].every(k => solved[k])) return;
@@ -1670,6 +1701,21 @@ function checkEx8() {
   } catch(e) {
     setFeedback('fb-ex8', false, 'Error: ' + e.message);
   }
+}
+
+// Ex 9 — pick_urn_ucb
+function checkEx9() {
+  const vb = document.getElementById('ex9b-input').value.trim();
+  if (!vb) { setFeedback('fb-ex9', false, 'Please enter your answer first.'); return; }
+
+  const hasMax  = vb.includes('max') && vb.includes('ucbs');
+  if (!hasMax) {
+    setFeedback('fb-ex9', false, 'Find the highest value in the list: max(ucbs)');
+    return;
+  }
+
+  setOutput('fb-ex9', '✓ Correct!\n\nExample: UCBs = [0.83, 0.95, 1.0]\nbest_idx = 2  ← highest upper bound\nProto-UCB will draw from urn 2 next.');
+  solved.ex9 = true; tryUnlock(4);
 }
 
 // ═══════════════════════════════════════════════════
