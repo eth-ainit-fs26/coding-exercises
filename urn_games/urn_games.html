@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Urn Games — Interactive Probability Lab</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <style>
   /* System font stacks — no external dependencies */
   :root {
@@ -446,54 +448,44 @@
 
   /* ── GAME 4 UCB INTERACTIVE ──────────────────────── */
   .ucb-game-wrap {
-    background: linear-gradient(135deg, #1c1408 0%, #2c1e10 50%, #1a1708 100%);
+    background: var(--sand);
     border-radius: 16px;
     padding: 24px;
     margin: 20px 0;
-    color: white;
+    color: var(--ink);
     position: relative;
-    overflow: hidden;
   }
-  .ucb-game-wrap::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 20% 30%, rgba(193,127,78,0.12) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, rgba(106,143,115,0.08) 0%, transparent 50%);
-    pointer-events: none;
-  }
-  .ucb-game-wrap > * { position: relative; z-index: 1; }
   .ucb-urns { display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0; }
   .ucb-urn {
     flex: 1; min-width: 100px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--warm-white);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 14px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .ucb-urn:hover { background: rgba(45,158,95,0.1); border-color: rgba(45,158,95,0.5); }
+  .ucb-urn:hover { background: rgba(193,127,78,0.08); border-color: var(--terra); }
   .ucb-urn.best-ucb {
-    border-color: rgba(45,158,95,0.85);
-    background: rgba(45,158,95,0.18);
-    box-shadow: 0 0 22px rgba(45,158,95,0.3);
+    border-color: var(--terra);
+    background: rgba(193,127,78,0.12);
+    box-shadow: 0 0 18px rgba(193,127,78,0.25);
   }
   .ucb-urn.locked { opacity: 0.4; cursor: not-allowed; }
-  .ucb-urn.locked:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); box-shadow: none; }
-  .ucb-urn-title { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
-  .ucb-urn-bounds { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin: 6px 0; }
-  .ucb-urn-upper { font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: 700; color: #4cd68a; }
-  .ucb-ci-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 20px; margin: 8px 0; }
-  .ucb-ci-bar { height: 100%; background: linear-gradient(90deg, rgba(45,158,95,0.5), #2d9e5f); border-radius: 20px; transition: all 0.4s; }
+  .ucb-urn.locked:hover { background: var(--warm-white); border-color: var(--border); box-shadow: none; }
+  .ucb-urn-title { font-size: 13px; color: var(--ink-muted); margin-bottom: 8px; }
+  .ucb-urn-bounds { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: var(--ink-muted); margin: 6px 0; }
+  .ucb-urn-upper { font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: 700; color: var(--terra-dark); }
+  .ucb-ci-track { height: 6px; background: var(--sand-dark); border-radius: 20px; margin: 8px 0; }
+  .ucb-ci-bar { height: 100%; background: linear-gradient(90deg, rgba(193,127,78,0.5), var(--terra)); border-radius: 20px; transition: all 0.4s; }
   .ucb-status {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(193,127,78,0.06);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 10px 14px;
     font-size: 13px;
-    color: rgba(255,255,255,0.75);
+    color: var(--ink-muted);
     min-height: 42px;
     margin: 12px 0;
   }
@@ -510,16 +502,16 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
-  .ucb-btn-auto { background: linear-gradient(135deg, #c17f4e, #d4622a); color: white; }
+  .ucb-btn-auto { background: linear-gradient(135deg, var(--terra), var(--rust)); color: white; }
   .ucb-btn-auto:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(193,127,78,0.4); }
-  .ucb-btn-reveal { background: rgba(106,143,115,0.3); color: #8fb098; border: 1px solid rgba(106,143,115,0.4); }
-  .ucb-btn-reveal:hover { background: rgba(106,143,115,0.45); }
-  .ucb-btn-reset { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); }
-  .ucb-btn-reset:hover { background: rgba(255,255,255,0.1); }
-  .ucb-score { font-family: 'Courier New', Courier, monospace; font-size: 22px; font-weight: 700; color: #f0c070; }
+  .ucb-btn-reveal { background: rgba(106,143,115,0.1); color: var(--sage); border: 1px solid rgba(106,143,115,0.3); }
+  .ucb-btn-reveal:hover { background: rgba(106,143,115,0.2); }
+  .ucb-btn-reset { background: var(--warm-white); color: var(--ink-light); border: 1px solid var(--sand-dark); }
+  .ucb-btn-reset:hover { background: var(--sand-dark); }
+  .ucb-score { font-family: 'Courier New', Courier, monospace; font-size: 22px; font-weight: 700; color: var(--terra); }
   .ucb-meta { display: flex; gap: 20px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
-  .ucb-meta-item { font-size: 12px; color: rgba(255,255,255,0.5); }
-  .ucb-meta-item strong { color: rgba(255,255,255,0.85); font-family: 'Courier New', Courier, monospace; }
+  .ucb-meta-item { font-size: 12px; color: var(--ink-muted); }
+  .ucb-meta-item strong { color: var(--ink); font-family: 'Courier New', Courier, monospace; }
 
   /* ── INTRO ───────────────────────────────────────── */
   .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
@@ -595,6 +587,35 @@
   }
   .tooltip:hover .tooltip-text { display: block; }
 
+  /* ── INTRO URNS ─────────────────────────────────────── */
+  #page-intro { position: relative; }
+  .intro-urn {
+    position: absolute;
+    top: -10px;
+    width: 230px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .intro-urn-left  { left: -80px; }
+  .intro-urn-right { right: -80px; transform: scaleX(-1); }
+  #page-intro .page-header,
+  #page-intro .card,
+  #page-intro .game-grid,
+  #page-intro .page-nav { position: relative; z-index: 1; }
+
+  /* ── VIS LOCK ──────────────────────────────────────── */
+  .vis-lock {
+    border: 1px dashed var(--sand-dark);
+    border-radius: 12px;
+    padding: 18px 24px;
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: 13px;
+    margin: 28px 0 4px;
+    background: rgba(240,230,211,0.35);
+    letter-spacing: 0.01em;
+  }
+
   @media (max-width: 768px) {
     .shell { flex-direction: column; }
     .sidebar { width: 100%; height: auto; position: static; padding: 20px 0; }
@@ -659,14 +680,67 @@
 
 <!-- ══════════════════════ INTRO PAGE ══════════════════════ -->
 <div class="page visible" id="page-intro">
-  <div class="page-header">
-    <h1 class="page-title">🏺 Welcome to the Urn Games 🏺</h1>
-    <p class="page-subtitle">A hands-on journey through probability estimation, confidence intervals, and bandit algorithms — all through the lens of mysterious urns filled with balls.</p>
+
+  <!-- Background urns -->
+  <div class="intro-urn intro-urn-left" aria-hidden="true">
+    <svg viewBox="0 0 220 440" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- Body -->
+      <path d="M62,30 C59,14 161,14 158,30 L130,74 C148,92 202,154 206,244 C210,314 184,368 170,394 L164,410 C153,422 67,422 56,410 L50,394 C36,368 10,314 14,244 C18,154 72,92 90,74 Z"
+        fill="rgba(193,127,78,0.09)" stroke="rgba(193,127,78,0.36)" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Rim -->
+      <ellipse cx="110" cy="30" rx="48" ry="16" fill="rgba(193,127,78,0.14)" stroke="rgba(193,127,78,0.38)" stroke-width="1.5"/>
+      <!-- Rim inner depth -->
+      <ellipse cx="110" cy="30" rx="36" ry="10" fill="rgba(44,36,22,0.07)"/>
+      <!-- Left handle -->
+      <path d="M88,78 C48,92 10,160 26,216 C35,246 62,256 78,246"
+        stroke="rgba(193,127,78,0.38)" stroke-width="10" stroke-linecap="round"/>
+      <!-- Right handle -->
+      <path d="M132,78 C172,92 210,160 194,216 C185,246 158,256 142,246"
+        stroke="rgba(193,127,78,0.38)" stroke-width="10" stroke-linecap="round"/>
+      <!-- Decorative waist band -->
+      <path d="M18,244 C60,256 160,256 202,244"
+        stroke="rgba(193,127,78,0.18)" stroke-width="18" fill="none" stroke-linecap="round"/>
+      <!-- Balls inside urn -->
+      <circle cx="86"  cy="300" r="10" fill="rgba(249,115,22,0.22)"/>
+      <circle cx="110" cy="318" r="10" fill="rgba(254,249,240,0.28)" stroke="rgba(193,127,78,0.22)" stroke-width="1.5"/>
+      <circle cx="134" cy="298" r="10" fill="rgba(249,115,22,0.22)"/>
+      <circle cx="98"  cy="278" r="10" fill="rgba(254,249,240,0.28)" stroke="rgba(193,127,78,0.22)" stroke-width="1.5"/>
+      <circle cx="124" cy="282" r="10" fill="rgba(249,115,22,0.22)"/>
+      <circle cx="110" cy="258" r="10" fill="rgba(254,249,240,0.28)" stroke="rgba(193,127,78,0.22)" stroke-width="1.5"/>
+      <!-- Foot ring -->
+      <ellipse cx="110" cy="404" rx="54" ry="14" fill="rgba(193,127,78,0.07)" stroke="rgba(193,127,78,0.28)" stroke-width="1.5"/>
+    </svg>
+  </div>
+  <div class="intro-urn intro-urn-right" aria-hidden="true">
+    <svg viewBox="0 0 220 440" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <path d="M62,30 C59,14 161,14 158,30 L130,74 C148,92 202,154 206,244 C210,314 184,368 170,394 L164,410 C153,422 67,422 56,410 L50,394 C36,368 10,314 14,244 C18,154 72,92 90,74 Z"
+        fill="rgba(193,127,78,0.09)" stroke="rgba(193,127,78,0.36)" stroke-width="1.5" stroke-linejoin="round"/>
+      <ellipse cx="110" cy="30" rx="48" ry="16" fill="rgba(193,127,78,0.14)" stroke="rgba(193,127,78,0.38)" stroke-width="1.5"/>
+      <ellipse cx="110" cy="30" rx="36" ry="10" fill="rgba(44,36,22,0.07)"/>
+      <path d="M88,78 C48,92 10,160 26,216 C35,246 62,256 78,246"
+        stroke="rgba(193,127,78,0.38)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M132,78 C172,92 210,160 194,216 C185,246 158,256 142,246"
+        stroke="rgba(193,127,78,0.38)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M18,244 C60,256 160,256 202,244"
+        stroke="rgba(193,127,78,0.18)" stroke-width="18" fill="none" stroke-linecap="round"/>
+      <circle cx="86"  cy="300" r="10" fill="rgba(249,115,22,0.22)"/>
+      <circle cx="110" cy="318" r="10" fill="rgba(254,249,240,0.28)" stroke="rgba(193,127,78,0.22)" stroke-width="1.5"/>
+      <circle cx="134" cy="298" r="10" fill="rgba(249,115,22,0.22)"/>
+      <circle cx="98"  cy="278" r="10" fill="rgba(254,249,240,0.28)" stroke="rgba(193,127,78,0.22)" stroke-width="1.5"/>
+      <circle cx="124" cy="282" r="10" fill="rgba(249,115,22,0.22)"/>
+      <circle cx="110" cy="258" r="10" fill="rgba(254,249,240,0.28)" stroke="rgba(193,127,78,0.22)" stroke-width="1.5"/>
+      <ellipse cx="110" cy="404" rx="54" ry="14" fill="rgba(193,127,78,0.07)" stroke="rgba(193,127,78,0.28)" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <div class="page-header" style="text-align:center;">
+    <h1 class="page-title">The Urn Games</h1>
+    <p class="page-subtitle" style="max-width:100%;">Four games. Hidden urns. Every draw tells you something — if you're paying attention.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">The Setup</div>
-    <p class="prose">Each urn contains balls of two colours: <strong>white</strong> (represented as 1) and <strong>orange</strong> (represented as 0). Your goal across all four games is to understand, estimate, and exploit the hidden probabilities inside these urns.</p>
+    <div class="card-title">The Urns</div>
+    <p class="prose">Each urn holds balls of two colours: <strong>white</strong> (1) and <strong>orange</strong> (0). The true mix is hidden. Your job is to figure it out — and then use that knowledge to win.</p>
     <div class="ball-row">
       <div class="ball white"></div><div class="ball white"></div><div class="ball orange"></div>
       <div class="ball white"></div><div class="ball orange"></div><div class="ball white"></div>
@@ -680,22 +754,22 @@
     <div class="game-card" onclick="showPage('game1')">
       <div class="game-card-num">Game 1</div>
       <h3>Estimating Ball Proportions</h3>
-      <p>Draw samples and estimate the probability of drawing a white ball using the frequentist approach.</p>
+      <p>You can't see inside. All you can do is draw — and count. How many samples does it take before you trust your guess?</p>
     </div>
     <div class="game-card" onclick="showPage('game2')">
       <div class="game-card-num">Game 2</div>
       <h3>Confidence Intervals</h3>
-      <p>Learn how confident you should be in your estimates and watch intervals shrink with more data.</p>
+      <p>A single number hides how sure you really are. Build the bracket around your estimate and watch it tighten.</p>
     </div>
     <div class="game-card" onclick="showPage('game3')">
       <div class="game-card-num">Game 3</div>
       <h3>Estimate-then-Exploit</h3>
-      <p>You're a marketer! Find the better ad within a budget of 200 shows. Choose your exploration trade-off.</p>
+      <p>You're a marketer with a fixed budget and two mystery ads. Spend too long testing and you lose. Jump too early and you pick wrong.</p>
     </div>
     <div class="game-card" onclick="showPage('game4')">
       <div class="game-card-num">Game 4</div>
       <h3>Proto-UCB</h3>
-      <p>Use Upper Confidence Bounds to automatically balance exploration and exploitation across three urns.</p>
+      <p>Three urns, no rules. Pick the one that <em>could</em> be best — and let uncertainty do the exploring for you.</p>
     </div>
   </div>
 
@@ -715,18 +789,18 @@
   <div class="page-header">
     <span class="tag">Game 1</span>
     <h1 class="page-title">Estimating Ball Proportions</h1>
-    <p class="page-subtitle">Learn about probability estimation through sampling, and watch the Law of Large Numbers in action.</p>
+    <p class="page-subtitle">The urn is sealed. Draw, record, repeat — and see how quickly your guess locks in.</p>
   </div>
 
-  <h2 class="section-title">The Setup</h2>
-  <p class="prose">You are given an urn containing an unknown number of balls. Your task is to draw samples <em>with replacement</em> and use your observations to estimate the probability of drawing a white ball.</p>
+  <h2 class="section-title">The Rules</h2>
+  <p class="prose">The urn holds balls in an unknown mix of orange and white. You draw one ball at a time — look at the colour, then drop it back in. Use what you've seen to estimate the chance of drawing white.</p>
 
   <div class="callout">
-    <p>Drawing <strong>with replacement</strong> means: after each draw, the ball is put back. The urn never changes. Each draw is independent.</p>
+    <p>Every draw is <strong>independent</strong>: the ball goes back in, the urn stays the same. You never run out — you just get more evidence.</p>
   </div>
 
-  <h2 class="section-title">Step 1 · Create the Urn</h2>
-  <p class="prose">We represent the urn as a Python list: orange balls are <code>0</code>, white balls are <code>1</code>. Complete the function below:</p>
+  <h2 class="section-title">Step 1 · Build the Urn</h2>
+  <p class="prose">The urn is just a Python list — orange balls as <code>0</code>, white balls as <code>1</code>. Build one:</p>
 
   <div class="exercise-block">
     <div class="exercise-header">
@@ -737,7 +811,7 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        Fill in the function body. The urn should contain <strong>n_orange</strong> zeros and <strong>n_white</strong> ones concatenated together.
+        Fill in the function body: <strong>n_orange</strong> zeros followed by <strong>n_white</strong> ones, joined into one list.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="kw">def</span> <span class="fn">create_urn</span>(<span class="var">n_orange</span>, <span class="var">n_white</span>):</div>
@@ -754,7 +828,7 @@
   </div>
 
   <h2 class="section-title">Step 2 · Draw from the Urn</h2>
-  <p class="prose">Now complete <code>draw_from_urn</code>. Each draw picks one ball at random (using <code>random.choice</code>) and adds it to the list.</p>
+  <p class="prose">Pick one ball at random (using <code>random.choice</code>), note the colour, put it back. Repeat.</p>
 
   <div class="exercise-block">
     <div class="exercise-header">
@@ -765,7 +839,7 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        Inside the loop, use <strong>random.choice(urn)</strong> to pick a ball and append it to <code>draws</code>.
+        Pick a ball with <strong>random.choice(urn)</strong> and append it to <code>draws</code>.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="kw">def</span> <span class="fn">draw_from_urn</span>(<span class="var">urn</span>, <span class="var">n_draws</span>):</div>
@@ -784,8 +858,8 @@
     </div>
   </div>
 
-  <h2 class="section-title">Step 3 · Frequentist Estimation</h2>
-  <p class="prose">The frequentist estimate is simple: count how many white balls (1s) you saw, and divide by the total number of draws.</p>
+  <h2 class="section-title">Step 3 · Make the Estimate</h2>
+  <p class="prose">Count the whites, divide by total draws. That's your best guess for the true proportion.</p>
 
   <div class="exercise-block">
     <div class="exercise-header">
@@ -796,7 +870,7 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        Count the white balls and compute the proportion. The variable <code>white_count</code> already counts 1s. Fill in the formula for <code>probability</code>.
+        <code>white_count</code> is already set. Fill in the formula for <code>probability</code>.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="kw">def</span> <span class="fn">frequentist_estimation</span>(<span class="var">sample</span>):</div>
@@ -814,8 +888,10 @@
     </div>
   </div>
 
-  <h2 class="section-title">Visualisation · Convergence</h2>
-  <p class="prose">Watch how the estimated probability converges to the true value as sample size grows. Adjust the parameters and re-run.</p>
+  <div class="vis-lock" id="g1-lock">Solve all three exercises above to unlock the simulation.</div>
+  <div id="g1-vis" style="display:none">
+  <h2 class="section-title">See It Converge</h2>
+  <p class="prose">More draws, tighter estimates. Adjust the sliders and watch the noise shrink.</p>
 
   <div class="sim-canvas-wrap">
     <div id="chart-convergence-wrap" style="width:100%;background:#f0e6d3;border-radius:8px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:var(--ink-muted);font-size:13px;font-style:italic">Press ▶ Simulate to run</div></div>
@@ -840,11 +916,12 @@
   </div>
 
   <h2 class="section-title">Results Table</h2>
-  <p class="prose">How does accuracy vary with sample size? Click Simulate above to populate this table.</p>
+  <p class="prose">Simulate first, then check how the error shrinks at different sample sizes.</p>
   <table class="results-table" id="tbl-game1">
     <thead><tr><th>Sample Size</th><th>Estimate P(White)</th><th>True P(White)</th><th>Error</th><th>Contains True?</th></tr></thead>
     <tbody id="tbl-game1-body"><tr><td colspan="5" style="text-align:center;color:var(--ink-muted)">Run simulation above →</td></tr></tbody>
   </table>
+  </div><!-- end g1-vis -->
 
 
   <div class="page-nav">
@@ -865,22 +942,22 @@
   <div class="page-header">
     <span class="tag">Game 2</span>
     <h1 class="page-title">Confidence Intervals</h1>
-    <p class="page-subtitle">Understand how confident you should be in your estimates — and watch intervals shrink as you gather more data.</p>
+    <p class="page-subtitle">An estimate is just a point. The interval tells you how much you should trust it.</p>
   </div>
 
-  <h2 class="section-title">What is a Confidence Interval?</h2>
-  <p class="prose">A single number like <em>0.6</em> tells us our estimate, but how certain is it? A confidence interval gives us a range that's likely to contain the true value. Wider interval = less certain. Narrower = more data, more confident.</p>
+  <h2 class="section-title">The Range Around Your Guess</h2>
+  <p class="prose">Saying <em>0.6</em> sounds precise — but with 5 draws, that number could easily be off by a lot. A confidence interval puts a bracket around the estimate: wider means less data, narrower means more.</p>
 
   <div class="card">
-    <div class="card-title">📐 The Formula</div>
+    <div class="card-title">The Formula</div>
     <div class="formula-box">
       <div class="formula-label">Confidence Interval</div>
-      <span style="font-size:20px">( p̂ₙ − 1/√n , p̂ₙ + 1/√n )</span>
+      <span id="formula-ci"></span>
     </div>
     <p style="font-size:13px;color:var(--ink-muted);margin-top:12px">Where <strong>p̂</strong> is our estimated probability and <strong>n</strong> is the sample size. Larger n → smaller margin → tighter interval.</p>
   </div>
 
-  <h2 class="section-title">Exercise · Implement the CI</h2>
+  <h2 class="section-title">Exercise · Build the Interval</h2>
 
   <div class="exercise-block">
     <div class="exercise-header">
@@ -891,7 +968,7 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        Using the formula above, compute the <strong>margin</strong> and set the lower and upper bounds. Remember: √n = n<sup>0.5</sup> in Python.
+        Compute the <strong>margin</strong> using the formula above. Remember: √n is <code>n ** 0.5</code> in Python.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="kw">def</span> <span class="fn">compute_confidence_interval</span>(<span class="var">sample</span>):</div>
@@ -913,8 +990,10 @@
     </div>
   </div>
 
-  <h2 class="section-title">Visualisation · Shrinking Intervals</h2>
-  <p class="prose">Adjust the true probability and watch how intervals narrow as n grows. The red line is the true probability.</p>
+  <div class="vis-lock" id="g2-lock">Solve the exercise above to unlock the simulation.</div>
+  <div id="g2-vis" style="display:none">
+  <h2 class="section-title">Watch the Interval Shrink</h2>
+  <p class="prose">Move the slider and hit Simulate. The red line is the true value — see how long it takes the interval to close in on it.</p>
 
   <div class="sim-canvas-wrap">
     <div id="chart-ci-wrap" style="width:100%;background:#f0e6d3;border-radius:8px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:var(--ink-muted);font-size:13px;font-style:italic">Press ▶ Simulate to run</div></div>
@@ -938,6 +1017,7 @@
     <thead><tr><th>n</th><th>Estimate</th><th>Lower</th><th>Upper</th><th>Width</th><th>Contains True?</th></tr></thead>
     <tbody id="tbl-game2-body"><tr><td colspan="6" style="text-align:center;color:var(--ink-muted)">Run simulation above →</td></tr></tbody>
   </table>
+  </div><!-- end g2-vis -->
 
 
   <div class="page-nav">
@@ -958,29 +1038,29 @@
   <div class="page-header">
     <span class="tag">Game 3</span>
     <h1 class="page-title">The Estimate-then-Exploit Game</h1>
-    <p class="page-subtitle">You're a digital marketer. One of two ads secretly performs much better. With a budget of 200 shows — how much do you spend estimating?</p>
+    <p class="page-subtitle">Two ads, 200 shows, one hidden winner. How many shows can you afford to waste on the wrong one?</p>
   </div>
 
   <div class="callout">
-    <p><strong>Ad A</strong> has a 30% click rate. <strong>Ad B</strong> has a 70% click rate (much better!). But you don't know which is which until you measure. Every show spends 1 unit of budget.</p>
+    <p>One ad clicks 30% of the time, the other 70% — but the labels are hidden. You find out only by showing them. Every show costs 1 unit of budget.</p>
   </div>
 
-  <h2 class="section-title">The Strategy</h2>
-  <p class="prose">The "Estimate-then-Exploit" strategy has two phases:</p>
+  <h2 class="section-title">The Split</h2>
+  <p class="prose">Two phases, one decision: how long to test before you commit.</p>
   <div class="card">
     <div style="display:flex;gap:16px;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
         <span class="phase-badge phase-explore">Phase 1 · Estimate</span>
-        <p style="font-size:13.5px;color:var(--ink-light);margin-top:10px;line-height:1.6">Show each ad <strong>n</strong> times. Record clicks. This costs <strong>2n</strong> budget. You get an estimate of each ad's click rate.</p>
+        <p style="font-size:13.5px;color:var(--ink-light);margin-top:10px;line-height:1.6">Show each ad <strong>n</strong> times and record the clicks. Costs <strong>2n</strong> budget — but now you have a read on both.</p>
       </div>
       <div style="flex:1;min-width:200px">
         <span class="phase-badge phase-exploit">Phase 2 · Exploit</span>
-        <p style="font-size:13.5px;color:var(--ink-light);margin-top:10px;line-height:1.6">Show the <em>seemingly better</em> ad for the remaining <strong>200 − 2n</strong> shows. Maximise total clicks!</p>
+        <p style="font-size:13.5px;color:var(--ink-light);margin-top:10px;line-height:1.6">Go all-in on the winner for the remaining <strong>200 − 2n</strong> shows. Every click counts now.</p>
       </div>
     </div>
   </div>
 
-  <h2 class="section-title">Exercise 1 · Run the Estimation Phase</h2>
+  <h2 class="section-title">Exercise 1 · Test Both Ads</h2>
 
   <div class="exercise-block">
     <div class="exercise-header">
@@ -991,7 +1071,7 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        Complete the estimation. For each ad, call <code>show_ad(probability)</code> and count clicks. Then compute the estimated click rate: <strong>clicks / n</strong>.
+        Fill in the estimated click rate for Ad A: <strong>clicks / n</strong>.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="var">clicks_A</span> <span class="op">=</span> <span class="num">0</span></div>
@@ -1014,7 +1094,7 @@
     </div>
   </div>
 
-  <h2 class="section-title">Exercise 2 · Calculate Total Clicks</h2>
+  <h2 class="section-title">Exercise 2 · Tally Your Score</h2>
 
   <div class="exercise-block">
     <div class="exercise-header">
@@ -1025,7 +1105,7 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        After the game, sum up clicks from all three parts: estimation of A, estimation of B, and exploitation.
+        Add up the clicks from all three phases: testing A, testing B, and the exploitation run.
       </div>
       <div class="code-area">
         <div class="code-line editable-line"><span class="var">total_clicks </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex6-input" rows="1" spellcheck="false"></textarea></div>
@@ -1038,8 +1118,10 @@
     </div>
   </div>
 
-  <h2 class="section-title">🎮 Interactive Simulation</h2>
-  <p class="prose">Now play the game! Drag the slider to choose <strong>n</strong> (how many times to show each ad during estimation). The simulator will play out the full strategy and show your score.</p>
+  <div class="vis-lock" id="g3-lock">Solve both exercises above to unlock the game.</div>
+  <div id="g3-vis" style="display:none">
+  <h2 class="section-title">Play It</h2>
+  <p class="prose">Drag the slider to pick your <strong>n</strong> — how long you'll test before committing. Then run it and see what happens.</p>
 
   <div class="card">
     <div class="card-title">Choose your n</div>
@@ -1081,8 +1163,9 @@
     </div>
   </div>
 
-  <h2 class="section-title">Reflection</h2>
-  <p class="prose">Try many different values of n. What happens with very small n (like 3)? What about very large n (like 80)? Is the result always the same for the same n? Why not?</p>
+  <h2 class="section-title">Push It</h2>
+  <p class="prose">Try n = 3. Try n = 80. Does the same n always give the same score? What's going on when it doesn't?</p>
+  </div><!-- end g3-vis -->
 
 
   <div class="page-nav">
@@ -1103,32 +1186,32 @@
   <div class="page-header">
     <span class="tag">Game 4</span>
     <h1 class="page-title">Proto-UCB Algorithm</h1>
-    <p class="page-subtitle">Upper Confidence Bounds — a smarter strategy that automatically balances exploration and exploitation, with zero hyperparameters.</p>
+    <p class="page-subtitle">No guessing, no tuning — just always pick the urn that <em>could</em> be best.</p>
   </div>
 
-  <h2 class="section-title">The Idea: Optimistic Selection</h2>
-  <p class="prose">Instead of randomly exploring (like Thompson Sampling), Proto-UCB is <em>optimistic</em>: it always picks the urn that <em>could potentially be best</em>. For each urn it computes an upper confidence bound and selects the highest.</p>
+  <h2 class="section-title">Optimistic by Default</h2>
+  <p class="prose">Proto-UCB never explores randomly. It's <em>optimistic</em>: it adds uncertainty to your estimate and picks whichever urn looks best under that generous assumption. Unknown urns look great — so it explores them first, naturally.</p>
 
   <div class="card">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
       <div style="padding:14px;background:var(--sand);border-radius:10px">
-        <div style="font-size:22px;margin-bottom:4px">1️⃣</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(193,127,78,0.12);border:1px solid rgba(193,127,78,0.3);color:var(--terra-dark);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">1</div>
         <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">Estimate</div>
         <div style="font-size:12px;color:var(--ink-muted)">Compute p̂ from samples</div>
       </div>
       <div style="padding:14px;background:var(--sand);border-radius:10px">
-        <div style="font-size:22px;margin-bottom:4px">2️⃣</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(193,127,78,0.12);border:1px solid rgba(193,127,78,0.3);color:var(--terra-dark);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">2</div>
         <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">Upper Bound</div>
         <div style="font-size:12px;color:var(--ink-muted)">UCB = p̂ + 1/√n</div>
       </div>
       <div style="padding:14px;background:var(--sand);border-radius:10px">
-        <div style="font-size:22px;margin-bottom:4px">3️⃣</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(193,127,78,0.12);border:1px solid rgba(193,127,78,0.3);color:var(--terra-dark);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">3</div>
         <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px">Select Best</div>
         <div style="font-size:12px;color:var(--ink-muted)">Pick highest UCB</div>
       </div>
     </div>
     <div class="info-box" style="margin-top:14px">
-      <p><strong>Early on:</strong> few samples → wide intervals → optimism pushes you to explore. <strong>Later:</strong> many samples → narrow intervals → you focus on the truly best urn. No ε to tune!</p>
+      <p><strong>Early on:</strong> few draws → wide intervals → every urn looks promising.<br><strong>Later:</strong> intervals shrink → the real winner pulls ahead. No ε, no schedule, no tuning.</p>
     </div>
   </div>
 
@@ -1143,14 +1226,14 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        Inside the loop, draw one ball at random from the urn using <code>random.choice(urn)</code> and append it to <code>draws</code>.
+        Pick a ball at random, then add it to the list. Fill in both lines inside the loop.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="kw">def</span> <span class="fn">draw_from_urn_ucb</span>(<span class="var">urn</span>, <span class="var">n_draws</span>):</div>
         <div class="code-line">    <span class="var">draws</span> <span class="op">=</span> []</div>
         <div class="code-line">    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n_draws</span>):</div>
         <div class="code-line editable-line"><span class="var">        ball </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex7-input" rows="1" spellcheck="false"></textarea></div>
-        <div class="code-line">        <span class="var">draws</span>.<span class="fn">append</span>(<span class="var">ball</span>)</div>
+        <div class="code-line editable-line"><span class="var">        </span><textarea class="code-input" id="ex7b-input" rows="1" spellcheck="false"></textarea></div>
         <div class="code-line">    <span class="kw">return</span> <span class="var">draws</span></div>
       </div>
       <div class="code-actions">
@@ -1171,30 +1254,32 @@
     </div>
     <div class="exercise-body">
       <div class="exercise-instructions">
-        The margin is <strong>1 / √n</strong>. Compute it and return (lower, upper) bounds, clipped to [0, 1].
+        Fill in the sample length, then both clipped bounds.
       </div>
       <div class="code-area">
         <div class="code-line"><span class="kw">def</span> <span class="fn">compute_confidence_interval_ucb</span>(<span class="var">sample</span>):</div>
         <div class="code-line">    <span class="kw">if</span> <span class="fn">len</span>(<span class="var">sample</span>) <span class="op">==</span> <span class="num">0</span>:</div>
         <div class="code-line">        <span class="kw">return</span> (<span class="num">0.0</span>, <span class="num">1.0</span>)</div>
         <div class="code-line">    <span class="var">p_hat</span> <span class="op">=</span> <span class="fn">frequentist_estimation</span>(<span class="var">sample</span>)</div>
-        <div class="code-line">    <span class="var">n</span> <span class="op">=</span> <span class="fn">len</span>(<span class="var">sample</span>)</div>
-        <div class="code-line editable-line"><span class="var">    margin </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex8-input" rows="1" spellcheck="false"></textarea></div>
-        <div class="code-line">    <span class="var">lower</span> <span class="op">=</span> <span class="fn">max</span>(<span class="num">0.0</span>, <span class="var">p_hat</span> <span class="op">-</span> <span class="var">margin</span>)</div>
-        <div class="code-line">    <span class="var">upper</span> <span class="op">=</span> <span class="fn">min</span>(<span class="num">1.0</span>, <span class="var">p_hat</span> <span class="op">+</span> <span class="var">margin</span>)</div>
+        <div class="code-line editable-line"><span class="var">    n </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex8a-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line">    <span class="var">margin</span> <span class="op">=</span> <span class="num">1.0</span> <span class="op">/</span> <span class="var">n</span> <span class="op">**</span> <span class="num">0.5</span></div>
+        <div class="code-line editable-line"><span class="var">    lower </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex8b-input" rows="1" spellcheck="false"></textarea></div>
+        <div class="code-line editable-line"><span class="var">    upper </span><span class="op">=</span><span class="var"> </span><textarea class="code-input" id="ex8c-input" rows="1" spellcheck="false"></textarea></div>
         <div class="code-line">    <span class="kw">return</span> (<span class="var">lower</span>, <span class="var">upper</span>)</div>
       </div>
       <div class="code-actions">
         <button class="btn btn-primary" onclick="checkEx8()">▶ Run &amp; Check</button>
         <button class="btn btn-hint" onclick="toggleHint('hint8')">💡 Hint</button>
       </div>
-      <div id="hint8" style="display:none" class="info-box"><p>Identical to Game 2! The margin is <code>1.0 / n ** 0.5</code>. Remember n ** 0.5 = √n.</p></div>
+      <div id="hint8" style="display:none" class="info-box"><p><code>len(sample)</code> counts the draws. <code>max(0.0, x)</code> ensures the lower bound doesn't go below 0. <code>min(1.0, x)</code> caps the upper bound at 1.</p></div>
       <div class="feedback" id="fb-ex8"></div>
     </div>
   </div>
 
-  <h2 class="section-title">🎮 Interactive UCB Demo</h2>
-  <p class="prose">Three urns with hidden compositions. You may only draw from the urn with the highest upper confidence bound. Can you find the best urn?</p>
+  <div class="vis-lock" id="g4-lock">Solve both exercises above to unlock the demo.</div>
+  <div id="g4-vis" style="display:none">
+  <h2 class="section-title">Play It</h2>
+  <p class="prose">Three urns, hidden mixes. The highlighted one has the highest upper bound — that's the algorithm's choice. Click it to draw, or let Auto-Play run ahead. Which urn wins?</p>
 
   <div class="ucb-game-wrap" id="ucb-game">
     <div class="ucb-meta">
@@ -1203,7 +1288,7 @@
       <div class="ucb-meta-item">Best urn: <strong id="ucb-best-label">?</strong></div>
     </div>
     <div class="ucb-urns" id="ucb-urns-container"></div>
-    <div class="ucb-status" id="ucb-status">Click any urn to start — the algorithm will guide your choices!</div>
+    <div class="ucb-status" id="ucb-status">Click the glowing urn to draw. The algorithm picks — you watch it learn.</div>
     <div class="ucb-controls">
       <button class="ucb-btn ucb-btn-auto" onclick="ucbAutoPlay()">⚡ Auto-Play 10</button>
       <button class="ucb-btn ucb-btn-reveal" onclick="ucbReveal()">🔍 Reveal Urns</button>
@@ -1211,8 +1296,8 @@
     </div>
   </div>
 
-  <h2 class="section-title">Visualisation · UCB vs Epsilon-Greedy</h2>
-  <p class="prose">Run the simulation to see cumulative reward and regret for Proto-UCB compared to epsilon-greedy strategies.</p>
+  <h2 class="section-title">UCB vs Epsilon-Greedy</h2>
+  <p class="prose">Run the comparison and see who racks up more reward — and who wastes less on the wrong urns.</p>
 
   <div class="sim-canvas-wrap">
     <div id="chart-ucb-wrap" style="width:100%;background:#f0e6d3;border-radius:8px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:center;height:120px;color:var(--ink-muted);font-size:13px;font-style:italic">Press ▶ Compare Algorithms to run</div></div>
@@ -1231,11 +1316,12 @@
     </div>
   </div>
 
-  <h2 class="section-title">Understanding Proto-UCB</h2>
+  <h2 class="section-title">Why It Works</h2>
   <div class="card">
-    <p class="prose" style="margin-bottom:10px"><strong>Key insight:</strong> Empty urns get UCB = 1.0 (maximum possible), so the algorithm must explore them first. As you gather data, the intervals shrink and the truly best urn emerges.</p>
-    <p class="prose" style="margin-bottom:0"><strong>Vs. Epsilon-Greedy:</strong> UCB adapts automatically — explores more early, exploits more later. No ε to tune, and typically lower regret especially when ε is poorly chosen.</p>
+    <p class="prose" style="margin-bottom:10px"><strong>Empty urns start at UCB = 1.0</strong> — the highest possible score. So the algorithm is forced to try everything at least once before settling. The more you draw, the faster the real winner separates from the pack.</p>
+    <p class="prose" style="margin-bottom:0"><strong>Vs. Epsilon-Greedy:</strong> you'd have to pick ε upfront and hope it's right. UCB adapts — more exploration early, more exploitation late — without you touching a thing.</p>
   </div>
+  </div><!-- end g4-vis -->
   <div class="page-nav">
     <button class="nav-btn nav-btn-back" onclick="showPage('game3')">
       <svg class="nav-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -1249,6 +1335,19 @@
 </div><!-- end shell -->
 
 <script>
+// ═══════════════════════════════════════════════════
+// KATEX FORMULA RENDERING
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof katex !== 'undefined') {
+    katex.render(
+      '\\Bigl(\\,\\hat{p}_n - \\dfrac{1}{\\sqrt{n}}\\,,\\;\\hat{p}_n + \\dfrac{1}{\\sqrt{n}}\\,\\Bigr)',
+      document.getElementById('formula-ci'),
+      { throwOnError: false, displayMode: false }
+    );
+  }
+});
+
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
@@ -1306,6 +1405,24 @@ function resetEx(inputId, val, fbId) {
   document.getElementById(inputId).value = val;
   const fb = document.getElementById(fbId);
   if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+}
+
+// ═══════════════════════════════════════════════════
+// VIS UNLOCK
+// ═══════════════════════════════════════════════════
+const solved = {};
+const prereqs = { 1: ['ex1','ex2','ex3'], 2: ['ex4'], 3: ['ex5','ex6'], 4: ['ex7','ex8'] };
+
+function tryUnlock(game) {
+  if (!prereqs[game].every(k => solved[k])) return;
+  const lock = document.getElementById('g' + game + '-lock');
+  const vis  = document.getElementById('g' + game + '-vis');
+  if (lock) lock.style.display = 'none';
+  if (vis)  vis.style.display = 'block';
+  if (game === 1) runSim1();
+  if (game === 2) runSim2();
+  if (game === 3) updateGame3UI();
+  if (game === 4) ucbReset();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1367,7 +1484,7 @@ function checkEx1() {
         result.filter(x=>x===1).length === 7) {
       setOutput('fb-ex1', '✓ Correct!\n\ncreate_urn(3, 7) → ' + JSON.stringify(result) +
         '\n3 orange (0s) + 7 white (1s) = 10 balls total ✓');
-      runSim1();
+      solved.ex1 = true; tryUnlock(1);
       return;
     }
   } catch(e) { /* fall through to pattern check */ }
@@ -1375,7 +1492,7 @@ function checkEx1() {
   // Fall back to pattern-based check for valid Python expressions
   if (hasOrangeZero && hasWhiteOne && hasConcat && hasMult) {
     setOutput('fb-ex1', '✓ Correct!\n\ncreate_urn(3, 7) → [0, 0, 0, 1, 1, 1, 1, 1, 1, 1]\n3 orange (0s) + 7 white (1s) = 10 balls total ✓');
-    runSim1();
+    solved.ex1 = true; tryUnlock(1);
   } else {
     const missing = [];
     if (!hasOrangeZero) missing.push('n_orange * [0] for the orange balls');
@@ -1390,6 +1507,7 @@ function checkEx1() {
 // Ex 2 — draw_from_urn
 function checkEx2() {
   const val = document.getElementById('ex2-input').value.trim();
+  if (!val) { setFeedback('fb-ex2', false, 'Please enter your answer first.'); return; }
   if (val.includes('random.choice') || val.includes('choice') || val.includes('randChoice')) {
     setFeedback('fb-ex2', true, 'Correct! Using random.choice(urn) picks a uniformly random ball on each draw.');
     // show demo output
@@ -1397,6 +1515,7 @@ function checkEx2() {
     const sample = drawFromUrn(urn, 20);
     setOutput('fb-ex2', '✓ Correct!\n\nDemo: draw_from_urn(urn, 20) → ' + JSON.stringify(sample) +
       '\nWhite count: ' + sample.filter(x=>x===1).length + '/20');
+    solved.ex2 = true; tryUnlock(1);
   } else {
     setFeedback('fb-ex2', false, 'Use random.choice(urn) to pick a random ball. E.g.: ball = random.choice(urn)');
   }
@@ -1405,6 +1524,7 @@ function checkEx2() {
 // Ex 3 — frequentist_estimation
 function checkEx3() {
   const val = document.getElementById('ex3-input').value.trim();
+  if (!val) { setFeedback('fb-ex3', false, 'Please enter your answer first.'); return; }
   try {
     const result = eval(val.replace('white_count','4').replace('total_count','10'));
     if (Math.abs(result - 0.4) < 0.001) {
@@ -1412,6 +1532,7 @@ function checkEx3() {
       const sample = drawFromUrn(urn, 100);
       const est = frequentistEstimation(sample);
       setOutput('fb-ex3', '✓ Correct!\n\nDemo: 100 draws from urn (true P=0.6)\nEstimate: ' + est.toFixed(4) + '\nTrue P(white): 0.6000\nError: ' + Math.abs(est-0.6).toFixed(4));
+      solved.ex3 = true; tryUnlock(1);
     } else {
       setFeedback('fb-ex3', false, 'Got ' + result + ' for 4/10. Expected 0.4. Try: white_count / total_count');
     }
@@ -1423,6 +1544,7 @@ function checkEx3() {
 // Ex 4 — confidence interval
 function checkEx4() {
   const val = document.getElementById('ex4-input').value.trim();
+  if (!val) { setFeedback('fb-ex4', false, 'Please enter your answer first.'); return; }
   try {
     const n = 100;
     const result = eval(val.replace(/\bn\b/g, '100'));
@@ -1436,7 +1558,7 @@ function checkEx4() {
         out += String(s).padEnd(7) + '| ' + w.toFixed(4) + '\n';
       });
       setOutput('fb-ex4', out);
-      runSim2();
+      solved.ex4 = true; tryUnlock(2);
     } else {
       setFeedback('fb-ex4', false, 'Got ' + result + ' for n=100. Expected 0.1 (1/√100). Try: 1.0 / n ** 0.5');
     }
@@ -1448,11 +1570,13 @@ function checkEx4() {
 // Ex 5 — estimation phase
 function checkEx5() {
   const val = document.getElementById('ex5-input').value.trim();
+  if (!val) { setFeedback('fb-ex5', false, 'Please enter your answer first.'); return; }
   try {
     const clicks_A = 6, n = 20;
     const result = eval(val.replace('clicks_A','6').replace(/\bn\b/g,'20'));
     if (Math.abs(result - 0.3) < 0.001) {
       setOutput('fb-ex5', '✓ Correct!\n\nDemo with n=20:\nAd A: clicks_A / n = 6/20 = 0.30\nAd B: clicks_B / n = 14/20 = 0.70\nWe correctly identify Ad B as better!');
+      solved.ex5 = true; tryUnlock(3);
     } else {
       setFeedback('fb-ex5', false, 'Got ' + result + ' for 6/20. Expected 0.3. Try: clicks_A / n');
     }
@@ -1464,11 +1588,13 @@ function checkEx5() {
 // Ex 6 — total clicks
 function checkEx6() {
   const val = document.getElementById('ex6-input').value.trim();
+  if (!val) { setFeedback('fb-ex6', false, 'Please enter your answer first.'); return; }
   try {
     const clicks_A=6, clicks_B=14, clicks_exploit=112;
     const result = eval(val.replace('clicks_A','6').replace('clicks_B','14').replace('clicks_exploit','112'));
     if (result === 132) {
       setOutput('fb-ex6', '✓ Correct!\n\nFor n=20 (typical run):\nclicks_A (estim) = 6\nclicks_B (estim) = 14\nclicks_exploit   = 112\n─────────────────\ntotal_clicks     = 132');
+      solved.ex6 = true; tryUnlock(3);
     } else {
       setFeedback('fb-ex6', false, 'Got ' + result + '. Expected 132 (6+14+112). Try: clicks_A + clicks_B + clicks_exploit');
     }
@@ -1479,29 +1605,64 @@ function checkEx6() {
 
 // Ex 7 — draw_from_urn_ucb
 function checkEx7() {
-  const val = document.getElementById('ex7-input').value.trim();
-  if (val.includes('choice') || val.includes('random')) {
+  const val  = document.getElementById('ex7-input').value.trim();
+  const val2 = document.getElementById('ex7b-input').value.trim();
+  if (!val)  { setFeedback('fb-ex7', false, 'Please enter your answer first.'); return; }
+  if (!val2) { setFeedback('fb-ex7', false, 'Fill in both lines.'); return; }
+  const hasChoice = val.includes('random.choice') || val.includes('choice');
+  const hasUrn    = val.includes('urn');
+  const appendOk  = val2.replace(/\s/g,'').includes('draws.append(ball)') ||
+                    (val2.includes('append') && val2.includes('ball'));
+  if (!hasChoice) {
+    setFeedback('fb-ex7', false, 'Use random.choice() to pick a random element from a list.');
+  } else if (!hasUrn) {
+    setFeedback('fb-ex7', false, 'Pass the urn as the argument: random.choice(urn).');
+  } else if (!appendOk) {
+    setFeedback('fb-ex7', false, 'Use draws.append(ball) to add the drawn ball to the list.');
+  } else {
     const urn = createUrn(30,70);
     const draws = drawFromUrn(urn, 100);
     const p = frequentistEstimation(draws);
     setOutput('fb-ex7', '✓ Correct!\n\nTest: 100 draws from urn (true P=0.7)\nEstimate: ' + p.toFixed(4) + '\nLength check: 100 draws ✓');
-  } else {
-    setFeedback('fb-ex7', false, 'Use random.choice(urn) to pick a ball at random.');
+    solved.ex7 = true; tryUnlock(4);
   }
 }
 
 // Ex 8 — compute_confidence_interval_ucb
 function checkEx8() {
-  const val = document.getElementById('ex8-input').value.trim();
+  const va = document.getElementById('ex8a-input').value.trim();
+  const vb = document.getElementById('ex8b-input').value.trim();
+  const vc = document.getElementById('ex8c-input').value.trim();
+  if (!va) { setFeedback('fb-ex8', false, 'Please enter your answer first.'); return; }
+  if (!vb || !vc) { setFeedback('fb-ex8', false, 'Fill in all three lines.'); return; }
+
+  // n = len(sample)
+  if (!va.includes('len') || !va.includes('sample')) {
+    setFeedback('fb-ex8', false, 'n should be the number of draws in the sample. Try: len(sample)');
+    return;
+  }
+
   try {
-    const n = 100;
-    const result = eval(val.replace(/\bn\b/g,'100'));
-    if (Math.abs(result - 0.1) < 0.001) {
-      setOutput('fb-ex8', '✓ Correct!\n\nSample: [1,1,0,1,0] (n=5, p̂=0.6)\nmargin = 1/√5 = ' + (1/Math.sqrt(5)).toFixed(4) + '\nlower  = max(0, 0.6 - ' + (1/Math.sqrt(5)).toFixed(4) + ') = ' + Math.max(0, 0.6-1/Math.sqrt(5)).toFixed(4) + '\nupper  = min(1, 0.6 + ' + (1/Math.sqrt(5)).toFixed(4) + ') = ' + Math.min(1, 0.6+1/Math.sqrt(5)).toFixed(4));
-      runSimUCB();
-    } else {
-      setFeedback('fb-ex8', false, 'Got ' + result + ' for n=100. Expected 0.1. Try: 1.0 / n ** 0.5');
+    const toJs = s => s
+      .replace(/\bmax\b/g, 'Math.max')
+      .replace(/\bmin\b/g, 'Math.min')
+      .replace(/\bp_hat\b/g, '0.6')
+      .replace(/\bmargin\b/g, '0.1');
+
+    const lower = eval(toJs(vb));
+    if (Math.abs(lower - Math.max(0.0, 0.6 - 0.1)) > 0.001) {
+      setFeedback('fb-ex8', false, 'lower should clip p_hat − margin to be at least 0. Try: max(0.0, p_hat - margin)');
+      return;
     }
+
+    const upper = eval(toJs(vc));
+    if (Math.abs(upper - Math.min(1.0, 0.6 + 0.1)) > 0.001) {
+      setFeedback('fb-ex8', false, 'upper should cap p_hat + margin at 1. Try: min(1.0, p_hat + margin)');
+      return;
+    }
+
+    setOutput('fb-ex8', '✓ Correct!\n\nSample: [1,1,0,1,0] (n=5, p̂=0.6)\nmargin = 1/√5 = ' + (1/Math.sqrt(5)).toFixed(4) + '\nlower  = max(0, 0.6 - ' + (1/Math.sqrt(5)).toFixed(4) + ') = ' + Math.max(0, 0.6-1/Math.sqrt(5)).toFixed(4) + '\nupper  = min(1, 0.6 + ' + (1/Math.sqrt(5)).toFixed(4) + ') = ' + Math.min(1, 0.6+1/Math.sqrt(5)).toFixed(4));
+    solved.ex8 = true; tryUnlock(4);
   } catch(e) {
     setFeedback('fb-ex8', false, 'Error: ' + e.message);
   }
@@ -1901,7 +2062,7 @@ function ucbRender() {
       <div class="ucb-urn-upper">${hi.toFixed(3)}</div>
       <div class="ucb-ci-track"><div class="ucb-ci-bar" style="width:${fillW}%;margin-left:${fillL}%"></div></div>
       <div class="ucb-urn-bounds">[${lo.toFixed(3)}, ${hi.toFixed(3)}]</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">
+      <div style="font-size:11px;color:var(--ink);margin-top:4px">
         n=${samp.length} · p̂=${samp.length?p.toFixed(2):'—'}<br>${composition}
       </div>
     `;
