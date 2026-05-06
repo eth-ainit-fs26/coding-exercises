@@ -1404,7 +1404,6 @@
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx1()">▶ Run &amp; Check</button>
                         <button class="btn btn-hint" onclick="toggleHint('hint1')">💡 Hint</button>
-                        <button class="btn btn-secondary" onclick="showSolution(1)">Show Solution</button>
                     </div>
                     <div id="hint1" style="display:none" class="info-box"><p>In Python, you can repeat a list: <code>[0]
                         * 3</code> gives <code>[0, 0, 0]</code>. You can also combine two lists with <code>+</code>.</p>
@@ -1439,7 +1438,6 @@
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx2()">▶ Run &amp; Check</button>
                         <button class="btn btn-hint" onclick="toggleHint('hint2')">💡 Hint</button>
-                        <button class="btn btn-secondary" onclick="showSolution(2)">Show Solution</button>
                     </div>
                     <div id="hint2" style="display:none" class="info-box"><p><code>random.choice(list)</code> picks a
                         uniformly random element from any list. The urn is just a list of 0s and 1s!</p></div>
@@ -1473,7 +1471,6 @@
                     </div>
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx3()">▶ Run &amp; Check</button>
-                        <button class="btn btn-secondary" onclick="showSolution(3)">Show Solution</button>
                     </div>
                     <div class="feedback" id="fb-ex3"></div>
                 </div>
@@ -1635,7 +1632,6 @@
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx4()">▶ Run &amp; Check</button>
                         <button class="btn btn-hint" onclick="toggleHint('hint4')">💡 Hint</button>
-                        <button class="btn btn-secondary" onclick="showSolution(4)">Show Solution</button>
                     </div>
                     <div id="hint4" style="display:none" class="info-box"><p>In Python, <code>n ** 0.5</code> is √n. So
                         <code>1.0 / n ** 0.5</code> gives 1/√n. This is your margin.</p></div>
@@ -1789,7 +1785,6 @@
                     </div>
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx5()">▶ Check</button>
-                        <button class="btn btn-secondary" onclick="showSolution(5)">Show Solution</button>
                     </div>
                     <div class="feedback" id="fb-ex5"></div>
                 </div>
@@ -1816,7 +1811,6 @@
                     </div>
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx6()">▶ Check</button>
-                        <button class="btn btn-secondary" onclick="showSolution(6)">Show Solution</button>
                     </div>
                     <div class="feedback" id="fb-ex6"></div>
                 </div>
@@ -1994,7 +1988,6 @@
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx7()">▶ Run &amp; Check</button>
                         <button class="btn btn-hint" onclick="toggleHint('hint7')">💡 Hint</button>
-                        <button class="btn btn-secondary" onclick="showSolution(7)">Show Solution</button>
                     </div>
                     <div id="hint7" style="display:none" class="info-box"><p>Use <code>random.choice(urn)</code> to pick
                         a random ball. Then add it: <code>draws.append(ball)</code>.</p></div>
@@ -2026,7 +2019,6 @@
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx8()">▶ Run &amp; Check</button>
                         <button class="btn btn-hint" onclick="toggleHint('hint8')">💡 Hint</button>
-                        <button class="btn btn-secondary" onclick="showSolution(8)">Show Solution</button>
                     </div>
                     <div id="hint8" style="display:none" class="info-box"><p><code>len(sample)</code> counts the draws.
                         <code>max(0.0, x)</code> clips the lower bound. <code>min(1.0, x)</code> caps the upper bound at
@@ -2059,7 +2051,6 @@
                     <div class="code-actions">
                         <button class="btn btn-primary" onclick="checkEx9()">▶ Run &amp; Check</button>
                         <button class="btn btn-hint" onclick="toggleHint('hint9')">💡 Hint</button>
-                        <button class="btn btn-secondary" onclick="showSolution(9)">Show Solution</button>
                     </div>
                     <div id="hint9" style="display:none" class="info-box"><p>You want the highest value in the <code>ucbs</code>
                         list: <code>max(ucbs)</code>.</p></div>
@@ -2241,35 +2232,6 @@
 
     // HINT TOGGLE
     // ═══════════════════════════════════════════════════
-    const solutions = {
-        1: {input: 'ex1-input', value: 'n_orange * [0] + n_white * [1]', check: checkEx1},
-        2: {input: 'ex2-input', value: 'random.choice(urn)', check: checkEx2},
-        3: {input: 'ex3-input', value: 'white_count / total_count', check: checkEx3},
-        4: {input: 'ex4-input', value: '1.0 / n ** 0.5', check: checkEx4},
-        5: {input: 'ex5-input', value: 'clicks_A / n', check: checkEx5},
-        6: {input: 'ex6-input', value: 'clicks_A + clicks_B + clicks_exploit', check: checkEx6},
-        7: {
-            input: 'ex7-input', value: 'random.choice(urn)', check: () => {
-                document.getElementById('ex7b-input').value = 'draws.append(ball)';
-                checkEx7();
-            }
-        },
-        8: {
-            input: 'ex8a-input', value: 'len(sample)', check: () => {
-                document.getElementById('ex8b-input').value = 'max(0.0, p_hat - margin)';
-                document.getElementById('ex8c-input').value = 'min(1.0, p_hat + margin)';
-                checkEx8();
-            }
-        },
-        9: {input: 'ex9b-input', value: 'max(ucbs)', check: checkEx9},
-    };
-
-    function showSolution(n) {
-        const s = solutions[n];
-        document.getElementById(s.input).value = s.value;
-        s.check();
-    }
-
     function toggleHint(id) {
         const el = document.getElementById(id);
         el.style.display = el.style.display === 'none' ? 'block' : 'none';
